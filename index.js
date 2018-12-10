@@ -31,7 +31,7 @@ let lastmessage = "";
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
-      if (msg.text.contains("complaintbot")) {
+      if (msg.text !== lastmessage) {
         bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
         lastmessage = msg.text;
         break;
