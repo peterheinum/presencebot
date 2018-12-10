@@ -11,12 +11,12 @@ var bot = new SlackBot({
 bot.on('start', function () {
   // more information about additional params https://api.slack.com/methods/chat.postMessage
   var params = {
-    icon_emoji: ':skull:'
+    icon_emoji: ':clock:'
   };
 
   // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
-  //bot.postMessageToChannel('general', 'https://www.youtube.com/watch?v=ZXsQAXx_ao0', params);
-  //var logthis = bot._api();
+  bot.postMessageToChannel('fuck-shit-up', 'Bot is restarted', params);
+  var logthis = bot._api();
 
   // If you add a 'slackbot' property, 
   // you will post to another user's slackbot channel instead of a direct message
@@ -32,9 +32,11 @@ bot.on("message", msg => {
   switch (msg.type) {
     case "message":
       if (msg.text !== lastmessage) { 
-        bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
-        lastmessage = msg.text;
-        break;
+        if (msg.channel[0] === "D" && msg.bot_id === undefined){
+          bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
+          lastmessage = msg.text;
+          break;
+        }        
       }
   }
 })
