@@ -1,14 +1,14 @@
 var SlackBot = require('slackbots');
-const aws = require('aws-sdk');
-let boken = new aws.apiKeys({
-  accesKeyId: process.env.apiKeys_KEY,
-  secretAccesKey: process.env.apiKeys_SECRET
-});
+// const aws = require('aws-sdk');
+// let token = new aws.apiKeys({
+//   accesKeyId: process.env.apiKeys_KEY,
+//   secretAccesKey: process.env.apiKeys_SECRET
+// });
 
 
 // create a bot
 var bot = new SlackBot({
-  token: boken.secretAccesKey, // Add a bot https://my.slack.com/services/new/bot and put the token 
+  token: 'xoxb-93368932182-496000936290-RQPGIg3fbmXJGuMaAW4IZ7a1', // Add a bot https://my.slack.com/services/new/bot and put the token 
   name: 'complaintbot'
 });
 
