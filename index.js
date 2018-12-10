@@ -1,14 +1,10 @@
 var SlackBot = require('slackbots');
-// const aws = require('aws-sdk');
-// let token = new aws.apiKeys({
-//   accesKeyId: process.env.apiKeys_KEY,
-//   secretAccesKey: process.env.apiKeys_SECRET
-// });
+const envKey = process.env.COMPLAINTBOTKEY;
 
 
 // create a bot
 var bot = new SlackBot({
-  token: 'xoxb-93368932182-496000936290-RQPGIg3fbmXJGuMaAW4IZ7a1', // Add a bot https://my.slack.com/services/new/bot and put the token 
+  token: envKey, // Add a bot https://my.slack.com/services/new/bot and put the token 
   name: 'complaintbot'
 });
 
@@ -30,13 +26,16 @@ bot.on('start', function () {
   //bot.postMessageToGroup('private_group', 'meow!', params); 
 });
 
-
+let lastmessage = "";
 
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
-      console.log(msg);
+    if(msg.text !== lastmessage){
       bot.postMessageToChannel("general", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
+      lastmessage = msg.text;
       break;
+    }
+     
   }
 })
