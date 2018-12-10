@@ -1,8 +1,14 @@
 var SlackBot = require('slackbots');
+const aws = require('aws-sdk');
+let boken = new aws.apiKeys({
+  accesKeyId: process.env.apiKeys_KEY,
+  secretAccesKey: process.env.apiKeys_SECRET
+});
+
 
 // create a bot
 var bot = new SlackBot({
-  token: '', // Add a bot https://my.slack.com/services/new/bot and put the token 
+  token: boken.secretAccesKey, // Add a bot https://my.slack.com/services/new/bot and put the token 
   name: 'complaintbot'
 });
 
@@ -15,7 +21,7 @@ bot.on('start', function () {
   // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
   //bot.postMessageToChannel('general', 'https://www.youtube.com/watch?v=ZXsQAXx_ao0', params);
   //var logthis = bot._api();
-  console.log();
+  
   // If you add a 'slackbot' property, 
   // you will post to another user's slackbot channel instead of a direct message
   //bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' }); 
