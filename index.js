@@ -17,7 +17,7 @@ bot.on('start', function () {
   // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
   //bot.postMessageToChannel('general', 'https://www.youtube.com/watch?v=ZXsQAXx_ao0', params);
   //var logthis = bot._api();
-  
+
   // If you add a 'slackbot' property, 
   // you will post to another user's slackbot channel instead of a direct message
   //bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' }); 
@@ -31,12 +31,10 @@ let lastmessage = "";
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
-    if(msg.text !== lastmessage){
-      if(msg.text.contains("complaintbot")){
+      if (msg.text.contains("complaintbot")) {
         bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
         lastmessage = msg.text;
         break;
-      }      
-    }     
+      }
   }
 })
