@@ -56,5 +56,8 @@ wordList = [
   'Do you ever wonder what life would be like if you’d gotten enough oxygen at birth?',
   'Can you die of constipation? I ask because I’m worried about how full of shit you are.',
   'You’ll never be the man your mom is.',
-  'Earth is full. Go home.'
+  'Earth is full. Go home.',
+  'Your family tree must be a cactus ‘cause you’re all a bunch of pricks.',
+  'I was going to give you a nasty look but I see that you’ve already got one.',
+  'Eat shit die'
 ]
