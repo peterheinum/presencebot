@@ -10,9 +10,7 @@ var bot = new SlackBot({
 
 bot.on('start', function () {
   // more information about additional params https://api.slack.com/methods/chat.postMessage
-  var params = {
-    icon_emoji: ':clock:'
-  };
+  const params = { 'slackbot': true, icon_emoji: ':skull:' };
 
   // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
   let randomcomplaint = getRandomComplaint();
