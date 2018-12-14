@@ -15,7 +15,8 @@ bot.on('start', function () {
   };
 
   // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
-  bot.postMessageToChannel('fuck-shit-up', 'Bot is restarted', params);
+  let randomcomplaint = getRandomComplaint();
+  bot.postMessageToChannel('fuck-shit-up', randomcomplaint, params);
   var logthis = bot._api();
 
   // If you add a 'slackbot' property, 
@@ -40,3 +41,22 @@ bot.on("message", msg => {
       }
   }
 })
+
+
+function getRandomComplaint(){
+  let complaint = wordList[Math.floor(Math.random() * wordList.length)];
+  return complaint;
+}
+
+
+
+wordList = [
+  'Life is definitely not worth it.',
+  'I regret waking up today.',
+  'Come on shitheads do something productive.',
+  'Remember that time I said I thought you were cool? I lied.',
+  'Do you ever wonder what life would be like if you’d gotten enough oxygen at birth?',
+  'Can you die of constipation? I ask because I’m worried about how full of shit you are.',
+  'You’ll never be the man your mom is.',
+  'Earth is full. Go home.'
+]
