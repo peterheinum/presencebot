@@ -1,5 +1,6 @@
 var SlackBot = require('slackbots');
-const envKey = process.env.COMPLAINTBOTKEY;
+const envKey = "xoxb-93368932182-496000936290-RQPGIg3fbmXJGuMaAW4IZ7a1";
+//const envKey = process.env.COMPLAINTBOTKEY;
 
 
 // create a bot
@@ -25,21 +26,31 @@ bot.on('start', function () {
   //bot.postMessageToGroup('private_group', 'meow!', params); 
 });
 
-let lastmessage = "";
-
+lastmessage = "";
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
       if (msg.text !== lastmessage) { 
         if (msg.channel[0] === "D" && msg.bot_id === undefined){
-          bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
+          //bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
           lastmessage = msg.text;
+          msg.user;
+
+          let get = httpGet(`https://slack.com/api/users.identity/${msg.user}`);
+          console.log(get);
           break;
         }        
       }
   }
 })
 
+function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
 
 function getRandomComplaint(){
   let complaint = wordList[Math.floor(Math.random() * wordList.length)];
