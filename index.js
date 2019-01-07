@@ -1,10 +1,17 @@
 const SlackBot = require('slackbots');
 const fs = require('fs');
-const envKey = "";
+const readline = require('readline');
+const {google} = require('googleapis');
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const TOKEN_PATH = 'token.json';
+
+
+const envKey = "xoxb-93368932182-496000936290-HXypONQcyqQz2g1rw1Hl7xPj";
 //const envKey = process.env.COMPLAINTBOTKEY;
 const params = { 'complaintbot': true, icon_emoji: ':skull:' };
 let todaysDate;
 let randomNr;
+let temp4name;
 
 // create a bot
 const bot = new SlackBot({
@@ -39,16 +46,28 @@ bot.on('start', function () {
 
   // let randomcomplaint = getRandomComplaint();
   //bot.postMessageToChannel('fuck-shit-up', randomcomplaint, params);
-  const logthis = bot._api();
+  //const logthis = bot._api();
 
   // let users = [];
   // users = bot.getUsers();
   // users._value.members.forEach(e => {
   //     console.log(e.profile);    
   // });
+  let tempdate = new Date();
+  todaysDate = convertDateToString(tempdate);
 
-
-
+  fs.readFile('datekey.txt', function (err, buf) {
+    if (buf != undefined) {
+      let dateKey = buf.toString().split('@');
+      if (todaysDate === dateKey[0]) {
+        randomNr = dateKey[1];
+        console.log(randomNr);
+      } 
+    }
+    else {
+      logError("Couldn't read file: " + todaysDate)
+    }
+  });
 
 
   //console.log(rightuser);
@@ -56,6 +75,114 @@ bot.on('start', function () {
   // you will post to another user's slackbot channel instead of a direct message
   //bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' }); 
 });
+
+
+
+//__________________________GOOOGLE STUFF___________________________\\
+function authorize(credentials, callback) {
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(
+      client_id, client_secret, redirect_uris[0]);
+
+  // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) return getNewToken(oAuth2Client, callback);
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client);
+  });
+}
+
+function getNewToken(oAuth2Client, callback) {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+  });
+  console.log('Authorize this app by visiting this url:', authUrl);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question('Enter the code from that page here: ', (code) => {
+    rl.close();
+    oAuth2Client.getToken(code, (err, token) => {
+      if (err) return console.error('Error while trying to retrieve access token', err);
+      oAuth2Client.setCredentials(token);
+      // Store the token to disk for later program executions
+      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+        if (err) console.error(err);
+        console.log('Token stored to', TOKEN_PATH);
+      });
+      callback(oAuth2Client);
+    });
+  });
+}
+
+function appendStuff(authClient) {
+  const sheets = google.sheets({ version: 'v4', authClient });
+  var request = {
+      // The ID of the spreadsheet to update.
+      spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+
+      // The A1 notation of a range to search for a logical table of data.
+      // Values will be appended after the last row of the table.
+      range: 'Sheet1!A1:B1',  // TODO: Update placeholder value.
+
+      // How the input data should be interpreted.
+      valueInputOption: 'RAW',  // TODO: Update placeholder value.
+
+      // How the input data should be inserted.
+      insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
+
+      resource: {
+          'values': [
+              [temp4name],
+          ]
+          // TODO: Add desired properties to the request body.
+      },
+
+      auth: authClient,
+  };
+
+  sheets.spreadsheets.values.append(request, function (err, response) {
+      if (err) {
+          console.error(err);
+          return;
+      }
+
+      // TODO: Change code below to process the `response` object:
+      //console.log(JSON.stringify(response, null, 2));
+
+      
+  });
+}
+
+
+function PushPresenceOnline(name) {
+  fs.readFile('credentials.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Google Sheets API.
+    authorize(JSON.parse(content), appendStuff);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//__________________________GOOOGLE STUFF___________________________\\
+
+
 
 function writeFile(data) {
   fs.writeFile('datekey.txt', data, function (err, data) {
@@ -130,6 +257,8 @@ bot.on("message", msg => {
             }
           } else {
             if (msg.text == randomNr) {
+              temp4name = user.display_name;
+              PushPresenceOnline();
               bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
             } else {
               bot.postMessageToUser(user.display_name, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
