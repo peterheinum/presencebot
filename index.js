@@ -6,7 +6,7 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
 
-const envKey = "xoxb-93368932182-496000936290-HXypONQcyqQz2g1rw1Hl7xPj";
+const envKey = "";
 //const envKey = process.env.COMPLAINTBOTKEY;
 const params = { 'complaintbot': true, icon_emoji: ':skull:' };
 let todaysDate;
@@ -118,6 +118,8 @@ function getNewToken(oAuth2Client, callback) {
 }
 
 function appendStuff(authClient) {
+  let tempdate = new Date();
+  tempdate = convertDateToString(tempdate);
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
       // The ID of the spreadsheet to update.
@@ -136,6 +138,7 @@ function appendStuff(authClient) {
       resource: {
           'values': [
               [temp4name],
+              [tempdate],
           ]
           // TODO: Add desired properties to the request body.
       },
@@ -257,7 +260,7 @@ bot.on("message", msg => {
             }
           } else {
             if (msg.text == randomNr) {
-              temp4name = user.display_name;
+              temp4name = user.real_name;
               PushPresenceOnline();
               bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
             } else {
