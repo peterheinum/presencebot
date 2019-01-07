@@ -1,58 +1,152 @@
-var SlackBot = require('slackbots');
-const envKey = "xoxb-93368932182-496000936290-RQPGIg3fbmXJGuMaAW4IZ7a1";
+const SlackBot = require('slackbots');
+const fs = require('fs');
+const envKey = "";
 //const envKey = process.env.COMPLAINTBOTKEY;
-
+const params = { 'complaintbot': true, icon_emoji: ':skull:' };
+let todaysDate;
+let randomNr;
 
 // create a bot
-var bot = new SlackBot({
+const bot = new SlackBot({
   token: envKey, // Add a bot https://my.slack.com/services/new/bot and put the token 
   name: 'complaintbot'
 });
 
+
+function newNervaro() {
+  let tempdate = new Date();
+  todaysDate = convertDateToString(tempdate);
+
+  fs.readFile('datekey.txt', function (err, buf) {
+    if (buf != undefined) {
+      let dateKey = buf.toString().split('@');
+      if (todaysDate !== dateKey[0]) {
+        if (newDay(todaysDate) == true) {
+          return dateKey[1];
+        }
+      } else {
+        return dateKey[1];
+      }
+    }
+    else {
+      logError("Couldn't read file: " + todaysDate)
+    }
+  });
+}
+
 bot.on('start', function () {
   // more information about additional params https://api.slack.com/methods/chat.postMessage
-  const params = { 'slackbot': true, icon_emoji: ':skull:' };
 
-  // define channel, where bot exist. You can adjust it there https://my.slack.com/services 
-  let randomcomplaint = getRandomComplaint();
-  bot.postMessageToChannel('fuck-shit-up', randomcomplaint, params);
-  var logthis = bot._api();
+  // let randomcomplaint = getRandomComplaint();
+  //bot.postMessageToChannel('fuck-shit-up', randomcomplaint, params);
+  const logthis = bot._api();
 
+  // let users = [];
+  // users = bot.getUsers();
+  // users._value.members.forEach(e => {
+  //     console.log(e.profile);    
+  // });
+
+
+
+
+
+  //console.log(rightuser);
   // If you add a 'slackbot' property, 
   // you will post to another user's slackbot channel instead of a direct message
   //bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' }); 
-
-  // define private group instead of 'private_group', where bot exist
-  //bot.postMessageToGroup('private_group', 'meow!', params); 
 });
 
-lastmessage = "";
+function writeFile(data) {
+  fs.writeFile('datekey.txt', data, function (err, data) {
+    if (err) console.log(err);
+    console.log("Successfully Written to File.");
+  });
+}
+
+function logError(data) {
+  fs.writeFile('errors.txt', data, function (err, data) {
+    if (err) console.log(err);
+  });
+}
+
+
+
+function newDay() {
+  try {
+    randomNr = randomNumberGenerator();
+    bot.postMessageToUser('pete', randomNr, params);
+    let data = `${todaysDate}@${randomNr.toString()}`;
+    writeFile(data);
+    return true;
+  }
+  catch (error) {
+    return false;
+  }
+}
+
+function randomNumberGenerator() {
+  let number = Math.floor((Math.random() * 9999));
+  if (number < 1000) number += 1000;
+  return number;
+}
+
+function convertDateToString(date) {
+  let newDate = "";
+  newDate += `${date.getFullYear()}-`;
+  newDate += `${date.getMonth() + 1}-`;
+  newDate += date.getDate();
+  return newDate;
+}
+
+
+let lastmessage = "";
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
-      if (msg.text !== lastmessage) { 
-        if (msg.channel[0] === "D" && msg.bot_id === undefined){
-          //bot.postMessageToChannel("fuck-shit-up", msg.text, { 'slackbot': true, icon_emoji: ':skull:' })
-          lastmessage = msg.text;
-          msg.user;
+      if (msg.channel[0] === "D" && msg.bot_id === undefined) {
+        let users = [];
+          users = bot.getUsers();
 
-          let get = httpGet(`https://slack.com/api/users.identity/${msg.user}`);
-          console.log(get);
-          break;
-        }        
+          lastmessage = msg.text;
+          let user;
+          users._value.members.forEach(e => {
+            if (e.id === msg.user) {
+              user = e.profile;
+            }
+          });
+
+        if (msg.text === "närvaro") {
+          let savedcode = newNervaro();
+          if(!savedcode == undefined) randomNr = savedcode;
+          bot.postMessageToUser(user.display_name, randomNr, params)
+        } else {
+          
+          if (user.display_name === "") {
+            if (msg.text == randomNr) {
+              bot.postMessage(msg.user, `Du har nu fått närvaro ${user.real_name}`, params);
+            } else {
+              bot.postMessage(msg.user, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
+            }
+          } else {
+            if (msg.text == randomNr) {
+              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+            } else {
+              bot.postMessageToUser(user.display_name, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
+            }
+          }
+        }
       }
   }
 })
 
-function httpGet(theUrl)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
 
-function getRandomComplaint(){
+
+
+
+
+
+function getRandomComplaint() {
   let complaint = wordList[Math.floor(Math.random() * wordList.length)];
   return complaint;
 }
@@ -70,5 +164,6 @@ wordList = [
   'Earth is full. Go home.',
   'Your family tree must be a cactus ‘cause you’re all a bunch of pricks.',
   'I was going to give you a nasty look but I see that you’ve already got one.',
-  'Eat shit die'
+  'Eat shit die',
+  'Go fuck yourself'
 ]
