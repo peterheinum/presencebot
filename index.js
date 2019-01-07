@@ -6,7 +6,7 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
 
-const envKey = "xoxb-93368932182-496000936290-HXypONQcyqQz2g1rw1Hl7xPj";
+const envKey = "nah man";
 //const envKey = process.env.COMPLAINTBOTKEY;
 const params = { 'complaintbot': true, icon_emoji: ':skull:' };
 let todaysDate;
