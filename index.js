@@ -1,23 +1,60 @@
 const SlackBot = require('slackbots');
 const fs = require('fs');
 const readline = require('readline');
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
+let users = [];
+//credentials = {"installed":{"client_id":process.env.ClientId,"project_id":process.env.Project_id,"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":process.env.ClientSecret,"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
+// FOR THE FUTURE
+
 
 const envKey = "";
-//const envKey = process.env.COMPLAINTBOTKEY;
+//const envKey = process.env.SlackBotKey;
 const params = { 'complaintbot': true, icon_emoji: ':skull:' };
 let todaysDate;
 let randomNr;
 let temp4name;
+let position;
 
-// create a bot
+
+// INIT MY BOT
 const bot = new SlackBot({
-  token: envKey, // Add a bot https://my.slack.com/services/new/bot and put the token 
+  token: envKey,
   name: 'complaintbot'
 });
+
+bot.on('start', function () {
+  users = bot.getUsers();
+  checkCurrentPositionInExcell();
+
+  //TODO IF DateAtTopFunction is a succes add +1 to the number file
+  
+  
+  let tempdate = new Date();
+  //todaysDate = convertDateToString(tempdate);
+  fs.readFile('datekey.txt', function (err, buf) {
+    if (buf != undefined) {
+      let dateKey = buf.toString().split('@');
+      console.log("Good morning");
+      console.log([dateKey[1]])
+      if (todaysDate === dateKey[0]) {
+        randomNr = dateKey[1];
+      }
+      else {
+        //DO something if todays date is not the one in current configuration   
+        //if you want     
+      }
+    }
+    else {
+      logError("Couldn't read file: " + todaysDate)
+    }
+  });
+});
+
+
+
 
 
 function newNervaro() {
@@ -28,7 +65,7 @@ function newNervaro() {
     if (buf != undefined) {
       let dateKey = buf.toString().split('@');
       if (todaysDate !== dateKey[0]) {
-        if (newDay(todaysDate) == true) {
+        if (newDay() == true) {
           return dateKey[1];
         }
       } else {
@@ -41,48 +78,143 @@ function newNervaro() {
   });
 }
 
-bot.on('start', function () {
-  // more information about additional params https://api.slack.com/methods/chat.postMessage
+function updateExcelCounter(data){
+  fs.writeFile('cellCount.txt', data, function (err, data) {
+    if (err) console.log(err);
+    console.log("Successfully updated cellcount to File.");
+  })
+}
 
-  // let randomcomplaint = getRandomComplaint();
-  //bot.postMessageToChannel('fuck-shit-up', randomcomplaint, params);
-  //const logthis = bot._api();
+function checkCurrentPositionInExcell() {
+  fs.readFile('cellCount.txt', function (err, buf) {
+    position = buf.toString();
+  })
+}
 
-  // let users = [];
-  // users = bot.getUsers();
-  // users._value.members.forEach(e => {
-  //     console.log(e.profile);    
-  // });
-  let tempdate = new Date();
-  todaysDate = convertDateToString(tempdate);
-
-  fs.readFile('datekey.txt', function (err, buf) {
-    if (buf != undefined) {
-      let dateKey = buf.toString().split('@');
-      if (todaysDate === dateKey[0]) {
-        randomNr = dateKey[1];
-        console.log(randomNr);
-      } 
-    }
-    else {
-      logError("Couldn't read file: " + todaysDate)
-    }
+function writeFile(data) {
+  fs.writeFile('datekey.txt', data, function (err, data) {
+    if (err) console.log(err);
+    console.log("Successfully Written to File.");
   });
+}
+
+function logError(data) {
+  fs.writeFile('errors.txt', data, function (err, data) {
+    if (err) console.log(err);
+  });
+}
 
 
-  //console.log(rightuser);
-  // If you add a 'slackbot' property, 
-  // you will post to another user's slackbot channel instead of a direct message
-  //bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' }); 
-});
+function newDay() {
+  try {
+    checkCurrentPositionInExcell();
+    PushThingsToGoogle(writeDateOnTop);
+    position++;
+    position++;
+    updateExcelCounter(position);
+    randomNr = randomNumberGenerator();
+    bot.postMessageToUser('pete', randomNr, params);
+    let data = `${todaysDate}@${randomNr.toString()}`;
+    writeFile(data);
+    return true;
+  }
+  catch (error) {
+    return false;
+  }
+}
+
+function randomNumberGenerator() {
+  let number = Math.floor((Math.random() * 9999));
+  if (number < 1000) number += 1000;
+  return number;
+}
+
+function convertDateToString(date) {
+  let newDate = "";
+  newDate += `${date.getFullYear()}-`;
+  newDate += `${date.getMonth() + 1}-`;
+  newDate += date.getDate();
+  return newDate;
+}
 
 
+let lastmessage = "";
+bot.on("message", msg => {
+  switch (msg.type) {
+    case "message":
+      if (msg.channel[0] === "D" && msg.bot_id === undefined) {
+        let users = [];
+        users = bot.getUsers();
+
+        lastmessage = msg.text;
+        let user;
+        users._value.members.forEach(e => {
+          if (e.id === msg.user) {
+            user = e.profile;
+          }
+        });
+
+        if (msg.text === "närvaro") {
+          let savedcode = newNervaro();
+          if (!savedcode == undefined) randomNr = savedcode;
+          bot.postMessageToUser(user.display_name, randomNr, params)
+        } else {
+
+          if (user.display_name === "") {
+            if (msg.text == randomNr) {
+              bot.postMessage(msg.user, `Du har nu fått närvaro ${user.real_name}`, params);
+            } else {
+              bot.postMessage(msg.user, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
+            }
+          } else {
+            if (msg.text == randomNr) {
+              temp4name = user.real_name;
+              PushThingsToGoogle(appendStuff);
+              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+            } else {
+              bot.postMessageToUser(user.display_name, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
+            }
+          }
+        }
+      }
+  }
+})
+
+const alphabet = [
+  'Please lord forgive me for my sins',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z'
+]
 
 //__________________________GOOOGLE STUFF___________________________\\
 function authorize(credentials, callback) {
-  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
-      client_id, client_secret, redirect_uris[0]);
+    client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
@@ -117,185 +249,86 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
-function appendStuff(authClient) {
-  let tempdate = new Date();
-  tempdate = convertDateToString(tempdate);
+function appendStuff(authClient) {  
+  console.log("we are in appending shit" + position);
+  let rangePosition = alphabet[position];
+  console.log("rangeposition in append" + rangePosition);
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
-      // The ID of the spreadsheet to update.
-      spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    // The ID of the spreadsheet to update.
+    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
 
-      // The A1 notation of a range to search for a logical table of data.
-      // Values will be appended after the last row of the table.
-      range: 'Sheet1!A1:B1',  // TODO: Update placeholder value.
+    // The A1 notation of a range to search for a logical table of data.
+    // Values will be appended after the last row of the table.
+    range: `Sheet1!${rangePosition}1:${rangePosition}1`,  // TODO: Update placeholder value.
 
-      // How the input data should be interpreted.
-      valueInputOption: 'RAW',  // TODO: Update placeholder value.
+    // How the input data should be interpreted.
+    valueInputOption: 'RAW',  // TODO: Update placeholder value.
 
-      // How the input data should be inserted.
-      insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
+    // How the input data should be inserted.
+    insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
 
-      resource: {
-          'values': [
-              [temp4name],
-              [tempdate],
-          ]
-          // TODO: Add desired properties to the request body.
-      },
+    resource: {
+      'values': [
+        [temp4name],
+      ]
+      // TODO: Add desired properties to the request body.
+    },
+    auth: authClient,
+  };
+  console.log(request.range);
 
-      auth: authClient,
+  sheets.spreadsheets.values.append(request, function (err, response) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+}
+
+function writeDateOnTop(authClient) {
+  checkCurrentPositionInExcell();
+  let tempdate = new Date();
+  tempdate = convertDateToString(tempdate);
+  let rangePosition = alphabet[position];
+  console.log(position + "writedataontop");
+  const sheets = google.sheets({ version: 'v4', authClient });
+  var request = {
+    // The ID of the spreadsheet to update.
+    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+
+    // The A1 notation of a range to search for a logical table of data.
+    // Values will be appended after the last row of the table.
+    range: `Sheet1!${rangePosition}1:${rangePosition}1`,  // TODO: Update placeholder value.
+
+    // How the input data should be interpreted.
+    valueInputOption: 'RAW',  // TODO: Update placeholder value.
+
+    // How the input data should be inserted.
+    insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
+
+    resource: {
+      'values': [
+        [tempdate],
+      ]
+      // TODO: Add desired properties to the request body.
+    },
+    auth: authClient,
   };
 
   sheets.spreadsheets.values.append(request, function (err, response) {
-      if (err) {
-          console.error(err);
-          return;
-      }
-
-      // TODO: Change code below to process the `response` object:
-      //console.log(JSON.stringify(response, null, 2));
-
-      
+    if (err) {
+      //console.error(err);
+      return;
+    }
   });
 }
 
-
-function PushPresenceOnline(name) {
+function PushThingsToGoogle(funct) {
   fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), appendStuff);
+    authorize(JSON.parse(content), funct);
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //__________________________GOOOGLE STUFF___________________________\\
-
-
-
-function writeFile(data) {
-  fs.writeFile('datekey.txt', data, function (err, data) {
-    if (err) console.log(err);
-    console.log("Successfully Written to File.");
-  });
-}
-
-function logError(data) {
-  fs.writeFile('errors.txt', data, function (err, data) {
-    if (err) console.log(err);
-  });
-}
-
-
-
-function newDay() {
-  try {
-    randomNr = randomNumberGenerator();
-    bot.postMessageToUser('pete', randomNr, params);
-    let data = `${todaysDate}@${randomNr.toString()}`;
-    writeFile(data);
-    return true;
-  }
-  catch (error) {
-    return false;
-  }
-}
-
-function randomNumberGenerator() {
-  let number = Math.floor((Math.random() * 9999));
-  if (number < 1000) number += 1000;
-  return number;
-}
-
-function convertDateToString(date) {
-  let newDate = "";
-  newDate += `${date.getFullYear()}-`;
-  newDate += `${date.getMonth() + 1}-`;
-  newDate += date.getDate();
-  return newDate;
-}
-
-
-let lastmessage = "";
-bot.on("message", msg => {
-  switch (msg.type) {
-    case "message":
-      if (msg.channel[0] === "D" && msg.bot_id === undefined) {
-        let users = [];
-          users = bot.getUsers();
-
-          lastmessage = msg.text;
-          let user;
-          users._value.members.forEach(e => {
-            if (e.id === msg.user) {
-              user = e.profile;
-            }
-          });
-
-        if (msg.text === "närvaro") {
-          let savedcode = newNervaro();
-          if(!savedcode == undefined) randomNr = savedcode;
-          bot.postMessageToUser(user.display_name, randomNr, params)
-        } else {
-          
-          if (user.display_name === "") {
-            if (msg.text == randomNr) {
-              bot.postMessage(msg.user, `Du har nu fått närvaro ${user.real_name}`, params);
-            } else {
-              bot.postMessage(msg.user, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
-            }
-          } else {
-            if (msg.text == randomNr) {
-              temp4name = user.real_name;
-              PushPresenceOnline();
-              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
-            } else {
-              bot.postMessageToUser(user.display_name, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
-            }
-          }
-        }
-      }
-  }
-})
-
-
-
-
-
-
-
-function getRandomComplaint() {
-  let complaint = wordList[Math.floor(Math.random() * wordList.length)];
-  return complaint;
-}
-
-
-
-wordList = [
-  'Life is definitely not worth it.',
-  'I regret waking up today.',
-  'Come on shitheads do something productive.',
-  'Remember that time I said I thought you were cool? I lied.',
-  'Do you ever wonder what life would be like if you’d gotten enough oxygen at birth?',
-  'Can you die of constipation? I ask because I’m worried about how full of shit you are.',
-  'You’ll never be the man your mom is.',
-  'Earth is full. Go home.',
-  'Your family tree must be a cactus ‘cause you’re all a bunch of pricks.',
-  'I was going to give you a nasty look but I see that you’ve already got one.',
-  'Eat shit die',
-  'Go fuck yourself'
-]
