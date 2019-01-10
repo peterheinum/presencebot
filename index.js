@@ -10,9 +10,8 @@ let users = [];
 // FOR THE FUTURE
 
 
-const envKey = "";
 //const envKey = process.env.SlackBotKey;
-const params = { 'complaintbot': true, icon_emoji: ':skull:' };
+const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
 let randomNr;
 let temp4name;
@@ -22,23 +21,24 @@ let position;
 // INIT MY BOT
 const bot = new SlackBot({
   token: envKey,
-  name: 'complaintbot'
+  name: 'presencebot'
 });
 
 bot.on('start', function () {
-  users = bot.getUsers();
   checkCurrentPositionInExcell();
+  // users._value.members.forEach(user => {
+  //   console.log(user.profile.real_name);
+  // });
 
   //TODO IF DateAtTopFunction is a succes add +1 to the number file
-  
-  
+
+
   let tempdate = new Date();
   //todaysDate = convertDateToString(tempdate);
   fs.readFile('datekey.txt', function (err, buf) {
     if (buf != undefined) {
       let dateKey = buf.toString().split('@');
       console.log("Good morning");
-      console.log([dateKey[1]])
       if (todaysDate === dateKey[0]) {
         randomNr = dateKey[1];
       }
@@ -57,15 +57,14 @@ bot.on('start', function () {
 
 
 
-function newNervaro() {
+function newPresence(user) {
   let tempdate = new Date();
   todaysDate = convertDateToString(tempdate);
-
   fs.readFile('datekey.txt', function (err, buf) {
     if (buf != undefined) {
       let dateKey = buf.toString().split('@');
       if (todaysDate !== dateKey[0]) {
-        if (newDay() == true) {
+        if (newDay(user) == true) {
           return dateKey[1];
         }
       } else {
@@ -78,7 +77,7 @@ function newNervaro() {
   });
 }
 
-function updateExcelCounter(data){
+function updateExcelCounter(data) {
   fs.writeFile('cellCount.txt', data, function (err, data) {
     if (err) console.log(err);
     console.log("Successfully updated cellcount to File.");
@@ -105,7 +104,7 @@ function logError(data) {
 }
 
 
-function newDay() {
+function newDay(user) {
   try {
     checkCurrentPositionInExcell();
     PushThingsToGoogle(writeDateOnTop);
@@ -113,7 +112,7 @@ function newDay() {
     position++;
     updateExcelCounter(position);
     randomNr = randomNumberGenerator();
-    bot.postMessageToUser('pete', randomNr, params);
+    bot.postMessageToUser(user.display_name, randomNr, params);
     let data = `${todaysDate}@${randomNr.toString()}`;
     writeFile(data);
     return true;
@@ -143,11 +142,11 @@ bot.on("message", msg => {
   switch (msg.type) {
     case "message":
       if (msg.channel[0] === "D" && msg.bot_id === undefined) {
-        let users = [];
         users = bot.getUsers();
-
         lastmessage = msg.text;
         let user;
+
+
         users._value.members.forEach(e => {
           if (e.id === msg.user) {
             user = e.profile;
@@ -155,27 +154,19 @@ bot.on("message", msg => {
         });
 
         if (msg.text === "närvaro") {
-          let savedcode = newNervaro();
-          if (!savedcode == undefined) randomNr = savedcode;
-          bot.postMessageToUser(user.display_name, randomNr, params)
-        } else {
-
-          if (user.display_name === "") {
-            if (msg.text == randomNr) {
-              bot.postMessage(msg.user, `Du har nu fått närvaro ${user.real_name}`, params);
-            } else {
-              bot.postMessage(msg.user, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
-            }
-          } else {
-            if (msg.text == randomNr) {
-              temp4name = user.real_name;
-              PushThingsToGoogle(appendStuff);
-              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
-            } else {
-              bot.postMessageToUser(user.display_name, "Du har tyvärr skrivit fel kod", { 'complaintbot': true, icon_emoji: ':skull:' });
-            }
-          }
+          let savedcode = newPresence(user);
+          console.log(savedcode);
+          bot.postMessageToUser(msg.user, randomNr, params)
         }
+        if (msg.text == randomNr) {
+          temp4name = user.real_name;
+          PushThingsToGoogle(appendStuff);
+          pushUsertopresent;
+          bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+        } else {
+          bot.postMessageToUser(user.display_name, `Du har tyvärr skrivit fel kod ${user.real_name}`, { 'complaintbot': true, icon_emoji: ':skull:' });
+        }
+
       }
   }
 })
@@ -249,10 +240,8 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
-function appendStuff(authClient) {  
-  console.log("we are in appending shit" + position);
+function appendStuff(authClient) {
   let rangePosition = alphabet[position];
-  console.log("rangeposition in append" + rangePosition);
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
@@ -276,7 +265,7 @@ function appendStuff(authClient) {
     },
     auth: authClient,
   };
-  console.log(request.range);
+  
 
   sheets.spreadsheets.values.append(request, function (err, response) {
     if (err) {
@@ -291,7 +280,6 @@ function writeDateOnTop(authClient) {
   let tempdate = new Date();
   tempdate = convertDateToString(tempdate);
   let rangePosition = alphabet[position];
-  console.log(position + "writedataontop");
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
