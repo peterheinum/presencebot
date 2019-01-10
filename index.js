@@ -5,10 +5,10 @@ const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
+let presentUsers = [];
 let users = [];
 //credentials = {"installed":{"client_id":process.env.ClientId,"project_id":process.env.Project_id,"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":process.env.ClientSecret,"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
 // FOR THE FUTURE
-
 
 //const envKey = process.env.SlackBotKey;
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
@@ -53,9 +53,28 @@ bot.on('start', function () {
   });
 });
 
+function ResetCellCount(user) {
+  fs.writeFile('cellCount.txt', "0", function (err, data) {
+    if (err) console.log(err);
+    bot.postMessageToUser(user.display_name, "Succesfully reset the cellcounter to 0", params);
+  })
+  checkCurrentPositionInExcell();
+}
 
 
-
+function pushUsertopresent(userid) {
+  presentUsers.push(userid);
+}
+function checkIfUserPresent(userid) {
+  console.log(presentUsers);
+  let temp = false;
+  presentUsers.forEach(USERID => {
+    if (USERID == userid) {
+      temp = true;
+    };
+  });
+  return temp;
+}
 
 function newPresence(user) {
   let tempdate = new Date();
@@ -65,7 +84,7 @@ function newPresence(user) {
       let dateKey = buf.toString().split('@');
       if (todaysDate !== dateKey[0]) {
         if (newDay(user) == true) {
-          return dateKey[1];
+          //If creating new day succeeded
         }
       } else {
         return dateKey[1];
@@ -153,20 +172,31 @@ bot.on("message", msg => {
           }
         });
 
-        if (msg.text === "närvaro") {
-          let savedcode = newPresence(user);
-          console.log(savedcode);
-          bot.postMessageToUser(msg.user, randomNr, params)
-        }
-        if (msg.text == randomNr) {
-          temp4name = user.real_name;
-          PushThingsToGoogle(appendStuff);
-          pushUsertopresent;
-          bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
-        } else {
-          bot.postMessageToUser(user.display_name, `Du har tyvärr skrivit fel kod ${user.real_name}`, { 'complaintbot': true, icon_emoji: ':skull:' });
+
+        if (msg.text === "cellreset") {
+          ResetCellCount(user);
         }
 
+        if (msg.text === "närvaro") {
+          let savedcode = newPresence(user);
+          console.log(randomNr);
+          bot.postMessageToUser(msg.user, randomNr, params)
+        } else {
+          if (msg.text == randomNr) {
+            
+            let userPresent = checkIfUserPresent(msg.user);
+            if (userPresent === false) {
+              temp4name = user.real_name;
+              PushThingsToGoogle(appendStuff);
+              pushUsertopresent(msg.user);
+              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+            } else {
+              bot.postMessageToUser(user.display_name, `Du har ju redan anmält dig närvarande`, params);
+            }
+          } else {
+            //bot.postMessageToUser(user.display_name, `Du har tyvärr skrivit fel kod ${user.real_name}`, { 'complaintbot': true, icon_emoji: ':skull:' });
+          }
+        }
       }
   }
 })
@@ -265,7 +295,7 @@ function appendStuff(authClient) {
     },
     auth: authClient,
   };
-  
+
 
   sheets.spreadsheets.values.append(request, function (err, response) {
     if (err) {
