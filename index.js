@@ -26,26 +26,20 @@ const bot = new SlackBot({
 
 bot.on('start', function () {
   checkCurrentPositionInExcell();
-
-  let tempdate = new Date();
-  //todaysDate = convertDateToString(tempdate);
-  fs.readFile('datekey.txt', function (err, buf) {
-    if (buf != undefined) {
-      let dateKey = buf.toString().split('@');
-      console.log("Good morning");
-      if (todaysDate === dateKey[0]) {
-        randomNr = dateKey[1];
-      }
-      else {
-        //DO something if todays date is not the one in current configuration   
-        //if you want     
-      }
-    }
-    else {
-      logError("Couldn't read file: " + todaysDate)
-    }
-  });
+  console.log("Good morning");
 });
+
+function nameMassager(name){
+  name = name.split('.');
+  if(name[1] != undefined){
+    name = `${capitalizeFirstLetter(name[0])} ${capitalizeFirstLetter(name[1])}`; 
+  }
+  return name.toString();
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function ResetCellCount(user) {
   fs.writeFile('cellCount.txt', "0", function (err, data) {
@@ -66,7 +60,6 @@ function pushUsertopresent(userid) {
   presentUsers.push(userid);
 }
 function checkIfUserPresent(userid) {
-  console.log(presentUsers);
   let temp = false;
   presentUsers.forEach(USERID => {
     if (USERID == userid) {
@@ -156,7 +149,6 @@ function convertDateToString(date) {
 }
 
 
-let lastmessage = "";
 bot.on("message", msg => {
   switch (msg.type) {
     case "message":
@@ -176,11 +168,11 @@ bot.on("message", msg => {
           case "cellreset": ResetCellCount(user);
             break;
 
-
           case "närvaro": {
-            let savedcode = newPresence(user);
-            console.log(randomNr);
-            bot.postMessageToUser(msg.user, randomNr, params);
+            if(msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ"){ //Axels och peters
+              let savedcode = newPresence(user);
+              bot.postMessageToUser(msg.user, randomNr, params);
+            }
             break;
           }
 
@@ -190,7 +182,7 @@ bot.on("message", msg => {
           case randomNr.toString(): {
             let userPresent = checkIfUserPresent(msg.user);
             if (userPresent === false) {
-              temp4name = user.real_name;
+              temp4name = nameMassager(user.real_name);              
               PushThingsToGoogle(appendStuff);
               pushUsertopresent(msg.user);
               bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
