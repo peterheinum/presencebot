@@ -26,12 +26,6 @@ const bot = new SlackBot({
 
 bot.on('start', function () {
   checkCurrentPositionInExcell();
-  // users._value.members.forEach(user => {
-  //   console.log(user.profile.real_name);
-  // });
-
-  //TODO IF DateAtTopFunction is a succes add +1 to the number file
-
 
   let tempdate = new Date();
   //todaysDate = convertDateToString(tempdate);
@@ -61,6 +55,12 @@ function ResetCellCount(user) {
   checkCurrentPositionInExcell();
 }
 
+function ResetDateKeyCount(user) {
+  fs.writeFile('datekey.txt', "lol", function (err, data) {
+    if (err) console.log(err);
+    bot.postMessageToUser(user.display_name, "Succesfully reset the datekey file", params);
+  })
+}
 
 function pushUsertopresent(userid) {
   presentUsers.push(userid);
@@ -172,32 +172,40 @@ bot.on("message", msg => {
           }
         });
 
+        switch (msg.text) {
+          case "cellreset": ResetCellCount(user);
+            break;
 
-        if (msg.text === "cellreset") {
-          ResetCellCount(user);
-        }
 
-        if (msg.text === "närvaro") {
-          let savedcode = newPresence(user);
-          console.log(randomNr);
-          bot.postMessageToUser(msg.user, randomNr, params)
-        } else {
-          if (msg.text == randomNr) {
-            
+          case "närvaro": {
+            let savedcode = newPresence(user);
+            console.log(randomNr);
+            bot.postMessageToUser(msg.user, randomNr, params);
+            break;
+          }
+
+          case "datereset": ResetDateKeyCount(user);
+            break;
+
+          case randomNr.toString(): {
             let userPresent = checkIfUserPresent(msg.user);
             if (userPresent === false) {
               temp4name = user.real_name;
               PushThingsToGoogle(appendStuff);
               pushUsertopresent(msg.user);
               bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+              break;
             } else {
-              bot.postMessageToUser(user.display_name, `Du har ju redan anmält dig närvarande`, params);
+              bot.postMessageToUser(user.display_name, `Du är redan närvarande`, params);
+              break;
             }
-          } else {
-            //bot.postMessageToUser(user.display_name, `Du har tyvärr skrivit fel kod ${user.real_name}`, { 'complaintbot': true, icon_emoji: ':skull:' });
           }
+
+          default: bot.postMessageToUser(user.display_name, `Jag förstår inte`, params);
+            break;
         }
       }
+
   }
 })
 
