@@ -10,6 +10,8 @@ let users = [];
 //credentials = {"installed":{"client_id":process.env.ClientId,"project_id":process.env.Project_id,"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":process.env.ClientSecret,"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
 // FOR THE FUTURE
 
+//const envKey = "xoxb-93368932182-496000936290-cpLKFL0Kb2VyLSW28mcA6vNZ"; //KDDEVS
+const envKey = "xoxb-166988133201-520082791441-FMTOHMfEW7zT78XSFp76ErNH"; //CHASACADEMY
 //const envKey = process.env.SlackBotKey;
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
@@ -27,12 +29,13 @@ const bot = new SlackBot({
 bot.on('start', function () {
   checkCurrentPositionInExcell();
   console.log("Good morning");
+  randomNr = randomNumberGenerator();
 });
 
-function nameMassager(name){
+function nameMassager(name) {
   name = name.split('.');
-  if(name[1] != undefined){
-    name = `${capitalizeFirstLetter(name[0])} ${capitalizeFirstLetter(name[1])}`; 
+  if (name[1] != undefined) {
+    name = `${capitalizeFirstLetter(name[0])} ${capitalizeFirstLetter(name[1])}`;
   }
   return name.toString();
 }
@@ -169,7 +172,7 @@ bot.on("message", msg => {
             break;
 
           case "närvaro": {
-            if(msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ"){ //Axels och peters
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
               let savedcode = newPresence(user);
               bot.postMessageToUser(msg.user, randomNr, params);
             }
@@ -179,23 +182,29 @@ bot.on("message", msg => {
           case "datereset": ResetDateKeyCount(user);
             break;
 
+          case "help": {
+            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet'", params);
+            break;
+          }
+
+          default: bot.postMessageToUser(user.display_name, `Någonting förstods ej, skriv help ifall du behöver stöd`, params);
+            break;
+
           case randomNr.toString(): {
             let userPresent = checkIfUserPresent(msg.user);
             if (userPresent === false) {
-              temp4name = nameMassager(user.real_name);              
+              temp4name = nameMassager(user.real_name);
               PushThingsToGoogle(appendStuff);
               pushUsertopresent(msg.user);
-              bot.postMessageToUser(user.display_name, `Du har nu fått närvaro ${user.real_name}`, params);
+              bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${todaysDate}`, params);
               break;
             } else {
               bot.postMessageToUser(user.display_name, `Du är redan närvarande`, params);
               break;
             }
           }
-
-          default: bot.postMessageToUser(user.display_name, `Jag förstår inte`, params);
-            break;
         }
+
       }
 
   }
