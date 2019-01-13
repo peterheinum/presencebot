@@ -10,8 +10,6 @@ let users = [];
 //credentials = {"installed":{"client_id":process.env.ClientId,"project_id":process.env.Project_id,"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":process.env.ClientSecret,"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
 // FOR THE FUTURE
 
-//const envKey = "xoxb-93368932182-496000936290-cpLKFL0Kb2VyLSW28mcA6vNZ"; //KDDEVS
-const envKey = "xoxb-166988133201-520082791441-FMTOHMfEW7zT78XSFp76ErNH"; //CHASACADEMY
 //const envKey = process.env.SlackBotKey;
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
