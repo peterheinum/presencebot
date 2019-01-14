@@ -9,6 +9,7 @@ let presentUsers = [];
 let users = [];
 const credentials = `{"installed":{"client_id":${process.env.ClientID},"project_id":${process.env.ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${process.env.ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
 
+
 // FOR THE FUTURE
 const envKey = process.env.SlackBotKey;
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
@@ -64,7 +65,7 @@ function changePositionFromLetter(letter){
   for (let i = 0; i < alphabet.length; i++) {
     if(letter.toUpperCase() == alphabet[i]){
       updateExcelCounter(i=i-2);
-      return i;
+      return i = i+2;
     }
   }
 }
@@ -196,12 +197,12 @@ bot.on("message", msg => {
           }
         });
         
-        let newRange = checkIfMessageIsSplittable(msg.text);
-        if(newRange != "no")
-        {
-          let letter = changePositionFromLetter(newRange);          
-          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
-        }
+        // let newRange = checkIfMessageIsSplittable(msg.text);
+        // if(newRange != "no")
+        // {
+        //   let letter = changePositionFromLetter(newRange);          
+        //   bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
+        // }
 
         switch (msg.text) {
           case "cellreset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
@@ -210,10 +211,10 @@ bot.on("message", msg => {
           break;
 
           case "närvaro": {
-            //if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
               let savedcode = newPresence(user);
               bot.postMessageToUser(msg.user, randomNr, params);
-            //}
+            }
             break;
           }
 
@@ -224,7 +225,7 @@ bot.on("message", msg => {
 
           case "help": {
             if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
-            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', currentcell för att ta reda på vart botten kommer skriva härnäst, 'jumpcell-a' för att byta  till cell a", params);
+            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', 'currentcell' för att ta reda på vart botten kommer skriva härnäst, 'jumpcell-a' för att byta  till cell a (kmr snart)", params);
             } else { bot.postMessageToUser(user.display_name, "Skriv koden Axel uppger för att få närvaro", params); }
             break;
           }
