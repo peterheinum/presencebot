@@ -62,7 +62,7 @@ function ResetCellCount(user) {
 
 function changePositionFromLetter(letter){
   for (let i = 0; i < alphabet.length; i++) {
-    if(letter = alphabet[i]){
+    if(letter.toUpperCase() == alphabet[i]){
       return i;
     }
   }
