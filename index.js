@@ -41,7 +41,7 @@ function nameMassager(name) {
 function checkIfMessageIsSplittable(msg){
   msg = msg.split('-');
   if(msg[1] != undefined && msg[0] == "jumpcell"){
-    return msg[1];
+    return msg[1].charAt(0);
   } else {
     return "no";
   }
@@ -64,7 +64,7 @@ function changePositionFromLetter(letter){
   for (let i = 0; i < alphabet.length; i++) {
     if(letter.toUpperCase() == alphabet[i]){
       updateExcelCounter(i=i-2);
-      return i = i-2;
+      return i;
     }
   }
 }
