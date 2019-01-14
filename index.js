@@ -210,10 +210,10 @@ bot.on("message", msg => {
           break;
 
           case "närvaro": {
-            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
+            //if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
               let savedcode = newPresence(user);
               bot.postMessageToUser(msg.user, randomNr, params);
-            }
+            //}
             break;
           }
 
