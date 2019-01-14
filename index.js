@@ -25,7 +25,7 @@ const bot = new SlackBot({
 });
 
 bot.on('start', function () {
-  checkCurrentPositionInExcell();
+  checkCurrentPositionInExcell(); //test
   console.log("Good morning");
   randomNr = randomNumberGenerator();
 });
