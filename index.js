@@ -63,7 +63,8 @@ function ResetCellCount(user) {
 function changePositionFromLetter(letter){
   for (let i = 0; i < alphabet.length; i++) {
     if(letter.toUpperCase() == alphabet[i]){
-      return i;
+      updateExcelCounter(i=i-2);
+      return i = i-2;
     }
   }
 }
@@ -198,8 +199,8 @@ bot.on("message", msg => {
         let newRange = checkIfMessageIsSplittable(msg.text);
         if(newRange != "no")
         {
-          let letter = changePositionFromLetter(newRange);
-          bot.postMessageToUser(user.display_name, letter, params);          
+          let letter = changePositionFromLetter(newRange);          
+          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
         }
 
         switch (msg.text) {
