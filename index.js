@@ -38,6 +38,16 @@ function nameMassager(name) {
   return name.toString();
 }
 
+function checkIfMessageIsSplittable(msg){
+  msg = msg.split('-');
+  if(msg[1] != undefined && msg[0] == "jumpcell"){
+    return msg[1];
+  } else {
+    return "no";
+  }
+  
+}
+
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -176,6 +186,13 @@ bot.on("message", msg => {
             user = e.profile;
           }
         });
+        
+        let newRange = checkIfMessageIsSplittable(msg.text);
+        if(newRange != "no")
+        {
+          bot.postMessageToUser(user.display_name, newRange, params);
+          //changeNrPositionFromLetter(newRange);
+        }
 
         switch (msg.text) {
           case "cellreset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
@@ -197,7 +214,9 @@ bot.on("message", msg => {
             break;
 
           case "help": {
-            bot.postMessageToUser(user.display_name, "'närvaro' (bara bossman kan) för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', currentcell för att ta reda på vart botten kommer skriva härnäst", params);
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
+            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', currentcell för att ta reda på vart botten kommer skriva härnäst, 'jumpcell-a' för att byta  till cell a", params);
+            } else { bot.postMessageToUser(user.display_name, "Skriv koden Axel uppger för att få närvaro", params); }
             break;
           }
 
@@ -230,6 +249,7 @@ bot.on("message", msg => {
 })
 
 const alphabet = [
+  'this aint no ordinary thing',
   'Please lord forgive me for my sins',
   'A',
   'B',
