@@ -60,6 +60,14 @@ function ResetCellCount(user) {
   checkCurrentPositionInExcell();
 }
 
+function changePositionFromLetter(letter){
+  for (let i = 0; i < alphabet.length; i++) {
+    if(letter = alphabet[i]){
+      return i;
+    }
+  }
+}
+
 function ResetDateKeyCount(user) {
   fs.writeFile('datekey.txt', "lol", function (err, data) {
     if (err) console.log(err);
@@ -190,8 +198,8 @@ bot.on("message", msg => {
         let newRange = checkIfMessageIsSplittable(msg.text);
         if(newRange != "no")
         {
-          bot.postMessageToUser(user.display_name, newRange, params);
-          //changeNrPositionFromLetter(newRange);
+          let letter = changePositionFromLetter(newRange);
+          bot.postMessageToUser(user.display_name, letter, params);          
         }
 
         switch (msg.text) {
