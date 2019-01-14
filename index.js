@@ -104,6 +104,18 @@ function checkCurrentPositionInExcell() {
   })
 }
 
+function reportCurrentCellInexcell(user){
+  fs.readFile('cellCount.txt', function (err, buf) {
+    if (buf != undefined) {
+      let tempposition = buf.toString();
+      tempposition++;
+      tempposition++;
+      bot.postMessageToUser(user.display_name, `Current position in excell is ${alphabet[tempposition]}`, params);
+    }
+  })
+}
+
+
 function writeFile(data) {
   fs.writeFile('datekey.txt', data, function (err, data) {
     if (err) console.log(err);
@@ -181,7 +193,12 @@ bot.on("message", msg => {
             break;
 
           case "help": {
-            bot.postMessageToUser(user.display_name, "'närvaro' (bara bossman kan) för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet'", params);
+            bot.postMessageToUser(user.display_name, "'närvaro' (bara bossman kan) för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', currentcell för att ta reda på vart botten kommer skriva härnäst", params);
+            break;
+          }
+
+          case "currentcell": {
+            reportCurrentCellInexcell(user);
             break;
           }
 
@@ -355,7 +372,8 @@ function PushThingsToGoogle(funct) {
   // fs.readFile('credentials.json', (err, content) => {
   //   if (err) return console.log('Error loading client secret file:', err);
   //   // Authorize a client with credentials, then call the Google Sheets API.
-  //   console.log(content);
+  //   
+  //   authorize(JSON.parse(content), funct); 
   // });
 }
 //__________________________GOOOGLE STUFF___________________________\\
