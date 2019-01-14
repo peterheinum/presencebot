@@ -178,8 +178,10 @@ bot.on("message", msg => {
         });
 
         switch (msg.text) {
-          case "cellreset": ResetCellCount(user);
-            break;
+          case "cellreset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
+            ResetCellCount(user);
+          }
+          break;
 
           case "närvaro": {
             if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
@@ -189,7 +191,9 @@ bot.on("message", msg => {
             break;
           }
 
-          case "datereset": ResetDateKeyCount(user);
+          case "datereset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
+            ResetDateKeyCount(user);
+          }
             break;
 
           case "help": {
@@ -202,7 +206,7 @@ bot.on("message", msg => {
             break;
           }
 
-          default: bot.postMessageToUser(user.display_name, `Någonting förstods ej, skriv help ifall du behöver stöd`, params);
+          default: bot.postMessageToUser(user.display_name, `Någonting förstods ej, skriv help ifall du behöver stöd (de flesta utav kommandon kommer bara axel åt!)`, params);
             break;
 
           case randomNr.toString(): {
