@@ -7,7 +7,7 @@ const TOKEN_PATH = 'token.json';
 
 let presentUsers = [];
 let users = [];
-const credentials = `{"installed":{"client_id":${process.env.ClientId},"project_id":${process.env.Project_id},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${process.env.ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
+const credentials = `{"installed":{"client_id":${process.env.ClientID},"project_id":${process.env.ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${process.env.ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
 
 // FOR THE FUTURE
 const envKey = process.env.SlackBotKey;
