@@ -7,9 +7,9 @@ const TOKEN_PATH = 'token.json';
 
 let presentUsers = [];
 let users = [];
-//credentials = {"installed":{"client_id":process.env.ClientId,"project_id":process.env.Project_id,"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":process.env.ClientSecret,"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}
-// FOR THE FUTURE
+const credentials = `{"installed":{"client_id":${process.env.ClientId},"project_id":${process.env.Project_id},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${process.env.ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
 
+// FOR THE FUTURE
 const envKey = process.env.SlackBotKey;
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
@@ -28,7 +28,6 @@ bot.on('start', function () {
   checkCurrentPositionInExcell();
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  
 });
 
 function nameMassager(name) {
@@ -182,7 +181,7 @@ bot.on("message", msg => {
             break;
 
           case "help": {
-            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet'", params);
+            bot.postMessageToUser(user.display_name, "'närvaro' (bara bossman kan) för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet'", params);
             break;
           }
 
@@ -350,11 +349,13 @@ function writeDateOnTop(authClient) {
   });
 }
 
-function PushThingsToGoogle(funct) {
-  fs.readFile('credentials.json', (err, content) => {
-    if (err) return console.log('Error loading client secret file:', err);
-    // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), funct);
-  });
+function PushThingsToGoogle(funct) { 
+
+  authorize(JSON.parse(credentials), funct); 
+  // fs.readFile('credentials.json', (err, content) => {
+  //   if (err) return console.log('Error loading client secret file:', err);
+  //   // Authorize a client with credentials, then call the Google Sheets API.
+  //   console.log(content);
+  // });
 }
 //__________________________GOOOGLE STUFF___________________________\\
