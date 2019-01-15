@@ -32,6 +32,7 @@ bot.on('start', function () {
   checkCurrentPositionInExcell(); //test
   console.log("Good morning");
   randomNr = randomNumberGenerator();
+  PushThingsToGoogle(writeDateOnTop);
 });
 
 function nameMassager(name) {
@@ -225,12 +226,14 @@ bot.on("message", msg => {
             break;
           }
           case "sick": {
-            temp4name = user.real_name;
-            PushThingsToGoogle(appendSickPerson);
+            let tempdate = new Date();
+            tempdate = convertDateToString(tempdate);
+            temp4name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
+            PushThingsToGoogle(appendStuff);
             bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${temp4name}`, params);
             bot.postMessageToUser("info", `${temp4name} har nu anmält sig sjuk`, params);
           }
-          break;
+            break;
 
           case "datereset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
             ResetDateKeyCount(user);
