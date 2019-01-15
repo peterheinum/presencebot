@@ -7,7 +7,10 @@ const TOKEN_PATH = 'token.json';
 
 let presentUsers = [];
 let users = [];
-const credentials = `{"installed":{"client_id":${process.env.ClientID},"project_id":${process.env.ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${process.env.ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
+const clientID = process.env.ClientID;
+const ProjectId = process.env.ProjectId;
+const ClientSecret = process.env.ClientSecret;
+const credentials = `{"installed":{"client_id":${clientID},"project_id":${ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
 
 
 // FOR THE FUTURE
@@ -39,14 +42,14 @@ function nameMassager(name) {
   return name.toString();
 }
 
-function checkIfMessageIsSplittable(msg){
+function checkIfMessageIsSplittable(msg) {
   msg = msg.split('-');
-  if(msg[1] != undefined && msg[0] == "jumpcell"){
+  if (msg[1] != undefined && msg[0] == "jumpcell") {
     return msg[1].charAt(0);
   } else {
     return "no";
   }
-  
+
 }
 
 function capitalizeFirstLetter(string) {
@@ -61,11 +64,11 @@ function ResetCellCount(user) {
   checkCurrentPositionInExcell();
 }
 
-function changePositionFromLetter(letter){
+function changePositionFromLetter(letter) {
   for (let i = 0; i < alphabet.length; i++) {
-    if(letter.toUpperCase() == alphabet[i]){
-      updateExcelCounter(i=i-2);
-      return i = i+2;
+    if (letter.toUpperCase() == alphabet[i]) {
+      updateExcelCounter(i = i - 2);
+      return i = i + 2;
     }
   }
 }
@@ -124,7 +127,7 @@ function checkCurrentPositionInExcell() {
   })
 }
 
-function reportCurrentCellInexcell(user){
+function reportCurrentCellInexcell(user) {
   fs.readFile('cellCount.txt', function (err, buf) {
     if (buf != undefined) {
       let tempposition = buf.toString();
@@ -151,7 +154,7 @@ function logError(data) {
 
 
 function newDay(user) {
-  try {    
+  try {
     PushThingsToGoogle(writeDateOnTop);
     position++;
     position++;
@@ -196,27 +199,38 @@ bot.on("message", msg => {
             user = e.profile;
           }
         });
-        
-        // let newRange = checkIfMessageIsSplittable(msg.text);
-        // if(newRange != "no")
-        // {
-        //   let letter = changePositionFromLetter(newRange);          
-        //   bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
-        // }
+
+        let newRange = checkIfMessageIsSplittable(msg.text);
+        if(newRange != "no")
+        {
+          let letter = changePositionFromLetter(newRange);          
+          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
+        }
 
         switch (msg.text) {
-          case "cellreset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
-            ResetCellCount(user);
+          case "cellreset": {
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
+              ResetCellCount(user);
+            }
+            break;
           }
-          break;
 
           case "närvaro": {
-            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters
-              let savedcode = newPresence(user);
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters  
+              presentUsers = [];
+              bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
+              newPresence(user);
               bot.postMessageToUser(msg.user, randomNr, params);
             }
             break;
           }
+          case "sick": {
+            temp4name = user.real_name;
+            PushThingsToGoogle(appendSickPerson);
+            bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${temp4name}`, params);
+            bot.postMessageToUser("info", `${temp4name} har nu anmält sig sjuk`, params);
+          }
+          break;
 
           case "datereset": if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
             ResetDateKeyCount(user);
@@ -225,8 +239,8 @@ bot.on("message", msg => {
 
           case "help": {
             if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") {
-            bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', 'currentcell' för att ta reda på vart botten kommer skriva härnäst, 'jumpcell-a' för att byta  till cell a (kmr snart)", params);
-            } else { bot.postMessageToUser(user.display_name, "Skriv koden Axel uppger för att få närvaro", params); }
+              bot.postMessageToUser(user.display_name, "'närvaro' för att starta botten, 'datereset' för att ta bort dagens kod, 'cellreset för att få botten att börja om i excell dokumentet', 'currentcell' för att ta reda på vart botten kommer skriva härnäst, 'jumpcell-a' för att byta  till cell a (kmr snart)", params);
+            } else { bot.postMessageToUser(user.display_name, "Skriv koden Axel uppger för att få närvaro, eller om du är sjuk skriv 'sick'", params); }
             break;
           }
 
@@ -366,7 +380,6 @@ function appendStuff(authClient) {
 function writeDateOnTop(authClient) {
   let tempdate = new Date();
   tempdate = convertDateToString(tempdate);
-  console.log(tempdate);
   let rangePosition = alphabet[position];
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
@@ -400,9 +413,47 @@ function writeDateOnTop(authClient) {
   });
 }
 
-function PushThingsToGoogle(funct) { 
 
-  authorize(JSON.parse(credentials), funct); 
+function appendSickPerson(authClient) { 
+  let tempdate = new Date();
+  tempdate = convertDateToString(tempdate);
+  let cellvalue = `SICK - ${temp4name} ${tempdate}`;
+  let rangePosition = alphabet[position];
+  const sheets = google.sheets({ version: 'v4', authClient });
+  var request = {
+    // The ID of the spreadsheet to update.
+    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+
+    // The A1 notation of a range to search for a logical table of data.
+    // Values will be appended after the last row of the table.
+    range: `Sheet1!$Z1:$Z1`,  // TODO: Update placeholder value.
+
+    // How the input data should be interpreted.
+    valueInputOption: 'RAW',  // TODO: Update placeholder value.
+
+    // How the input data should be inserted.
+    insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
+
+    resource: {
+      'values': [
+        [cellvalue],
+      ]
+      // TODO: Add desired properties to the request body.
+    },
+    auth: authClient,
+  };
+
+  sheets.spreadsheets.values.append(request, function (err, response) {
+    if (err) {
+      //console.error(err);
+      return;
+    }
+  });
+}
+
+function PushThingsToGoogle(funct) {
+
+  authorize(JSON.parse(credentials), funct);
   // fs.readFile('credentials.json', (err, content) => {
   //   if (err) return console.log('Error loading client secret file:', err);
   //   // Authorize a client with credentials, then call the Google Sheets API.
