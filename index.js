@@ -34,7 +34,7 @@ bot.on('start', function () {
   checkCurrentPositionInExcell(); //test
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  bot.postMessageToUser("peter.heinum", port.toString(), params);
+  //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
 function nameMassager(name) {
