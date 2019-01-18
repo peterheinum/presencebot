@@ -42,6 +42,7 @@ bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
   bot.postMessageToUser("peter.heinum", "Good morning", params);
+  
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
@@ -58,7 +59,7 @@ function checkIfMessageIsSplittable(msg) {
   if (msg[1] != undefined && msg[0] == "jumpcell") {
     return msg[1].charAt(0);
   } else {
-    return "no";
+    return false;
   }
 
 }
@@ -210,6 +211,8 @@ bot.on("message", msg => {
             user = e.profile;
           }
         });
+
+        console.log(user);
         
 
         let newRange = checkIfMessageIsSplittable(msg.text);
