@@ -108,21 +108,23 @@ function newPresence(user) {
   checkCurrentPositionInExcell();
   let tempdate = new Date();
   todaysDate = convertDateToString(tempdate);
-  fs.readFile('datekey.txt', function (err, buf) {
-    if (buf != undefined) {
-      let dateKey = buf.toString().split('@');
-      if (todaysDate !== dateKey[0]) {
-        if (newDay(user) == true) {
-          //If creating new day succeeded
-        }
-      } else {
-        return dateKey[1];
-      }
-    }
-    else {
-      logError("Couldn't read file: " + todaysDate)
-    }
-  });
+  newDay(user);
+  
+  // fs.readFile('datekey.txt', function (err, buf) {
+  //   if (buf != undefined) {
+  //     let dateKey = buf.toString().split('@');
+  //     if (todaysDate !== dateKey[0]) {
+  //       if (newDay(user) == true) {
+  //         //If creating new day succeeded
+  //       }
+  //     } else {
+  //       return dateKey[1];
+  //     }
+  //   }
+  //   else {
+  //     logError("Couldn't read file: " + todaysDate)
+  //   }
+  // });
 }
 
 function updateExcelCounter(data) {
@@ -165,7 +167,6 @@ function logError(data) {
 
 
 function newDay(user) {
-  try {
     console.log('3');
     PushThingsToGoogle(writeDateOnTop);
     position++;
@@ -174,12 +175,7 @@ function newDay(user) {
     randomNr = randomNumberGenerator();
     bot.postMessageToUser(user, randomNr, params);
     let data = `${todaysDate}@${randomNr.toString()}`;
-    writeFile(data);
-    return true;
-  }
-  catch (error) {
-    return false;
-  }
+    writeFile(data); 
 }
 
 function randomNumberGenerator() {
@@ -232,7 +228,7 @@ bot.on("message", msg => {
           case "närvaro": {
             if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
-              console.log('1');
+              
               bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
               newPresence(user.display_name);
               bot.postMessageToUser(msg.user, randomNr, params);
