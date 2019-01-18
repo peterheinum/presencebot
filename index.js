@@ -37,10 +37,9 @@ let users = [];
 
 bot.on('start', function () {
   console.log("Good morning");
-  console.log(`${ClientSecret} ${ProjectId} ${clientID}`);
   randomNr = randomNumberGenerator();
   bot.postMessageToUser("peter.heinum", "Good morning", params);
-  
+
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
@@ -104,27 +103,25 @@ function checkIfUserPresent(userid) {
 }
 
 function newPresence(user) {
-  console.log("2");
   checkCurrentPositionInExcell();
   let tempdate = new Date();
   todaysDate = convertDateToString(tempdate);
-  newDay(user);
-  
-  // fs.readFile('datekey.txt', function (err, buf) {
-  //   if (buf != undefined) {
-  //     let dateKey = buf.toString().split('@');
-  //     if (todaysDate !== dateKey[0]) {
-  //       if (newDay(user) == true) {
-  //         //If creating new day succeeded
-  //       }
-  //     } else {
-  //       return dateKey[1];
-  //     }
-  //   }
-  //   else {
-  //     logError("Couldn't read file: " + todaysDate)
-  //   }
-  // });
+
+  fs.readFile('datekey.txt', function (err, buf) {
+    if (buf != undefined) {
+      let dateKey = buf.toString().split('@');
+      if (todaysDate !== dateKey[0]) {
+        if (newDay(user) == true) {
+          //If creating new day succeeded
+        }
+      } else {
+        return dateKey[1];
+      }
+    }
+    else {
+      logError("Couldn't read file: " + todaysDate)
+    }
+  });
 }
 
 function updateExcelCounter(data) {
@@ -167,15 +164,14 @@ function logError(data) {
 
 
 function newDay(user) {
-    console.log('3');
-    PushThingsToGoogle(writeDateOnTop);
-    position++;
-    position++;
-    updateExcelCounter(position);
-    randomNr = randomNumberGenerator();
-    bot.postMessageToUser(user, randomNr, params);
-    let data = `${todaysDate}@${randomNr.toString()}`;
-    writeFile(data); 
+  PushThingsToGoogle(writeDateOnTop);
+  position++;
+  position++;
+  updateExcelCounter(position);
+  randomNr = randomNumberGenerator();
+  bot.postMessageToUser(user, randomNr, params);
+  let data = `${todaysDate}@${randomNr.toString()}`;
+  writeFile(data);
 }
 
 function randomNumberGenerator() {
@@ -208,13 +204,12 @@ bot.on("message", msg => {
           }
         });
 
-        
+
 
         let newRange = checkIfMessageIsSplittable(msg.text);
-        if(newRange != false)
-        {
-          let letter = changePositionFromLetter(newRange);          
-          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
+        if (newRange != false) {
+          let letter = changePositionFromLetter(newRange);
+          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);
         }
 
         switch (msg.text) {
@@ -228,8 +223,7 @@ bot.on("message", msg => {
           case "närvaro": {
             if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
-              
-              bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
+              bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
               newPresence(user.display_name);
               bot.postMessageToUser(msg.user, randomNr, params);
             }
@@ -427,7 +421,7 @@ function writeDateOnTop(authClient) {
 }
 
 
-function appendSickPerson(authClient) { 
+function appendSickPerson(authClient) {
   let tempdate = new Date();
   tempdate = convertDateToString(tempdate);
   let cellvalue = `SICK - ${temp4name} ${tempdate}`;
@@ -465,7 +459,6 @@ function appendSickPerson(authClient) {
 }
 
 function PushThingsToGoogle(funct) {
-
   authorize(JSON.parse(credentials), funct);
   // fs.readFile('credentials.json', (err, content) => {
   //   if (err) return console.log('Error loading client secret file:', err);
