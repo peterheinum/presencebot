@@ -37,6 +37,10 @@ bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
   PushThingsToGoogle(writeDateOnTop);
+  bot.postMessageToUser("peter.heinum", "Good morning", params);
+  
+
+
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
@@ -205,6 +209,7 @@ bot.on("message", msg => {
             user = e.profile;
           }
         });
+        
 
         let newRange = checkIfMessageIsSplittable(msg.text);
         if(newRange != "no")
@@ -222,9 +227,9 @@ bot.on("message", msg => {
           }
 
           case "närvaro": {
-            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Axels och peters  
+            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
-              bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
+              bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
               newPresence(user);
               bot.postMessageToUser(msg.user, randomNr, params);
             }
