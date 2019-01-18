@@ -5,9 +5,13 @@ const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
-let presentUsers = [];
-let users = [];
 const envKey = process.env.SlackBotKey;
+
+const bot = new SlackBot({
+  token: envKey,
+  name: 'presencebot'
+});
+
 const clientID = process.env.ClientID;
 const ProjectId = process.env.ProjectId;
 const ClientSecret = process.env.ClientSecret;
@@ -25,13 +29,11 @@ let todaysDate;
 let randomNr;
 let temp4name;
 let position;
+let presentUsers = [];
+let users = [];
 
 
 // INIT MY BOT
-const bot = new SlackBot({
-  token: envKey,
-  name: 'presencebot'
-});
 
 bot.on('start', function () {
   checkCurrentPositionInExcell(); //test
@@ -39,9 +41,6 @@ bot.on('start', function () {
   randomNr = randomNumberGenerator();
   PushThingsToGoogle(writeDateOnTop);
   bot.postMessageToUser("peter.heinum", "Good morning", params);
-  
-
-
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
