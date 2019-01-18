@@ -37,7 +37,7 @@ let users = [];
 
 bot.on('start', function () {
   console.log("Good morning");
-  console.log(this.client_secret + this.ProjectId + this.clientID);
+  console.log(`${client_secret} ${ProjectId} ${clientID}`);
   randomNr = randomNumberGenerator();
   bot.postMessageToUser("peter.heinum", "Good morning", params);
   
@@ -104,6 +104,7 @@ function checkIfUserPresent(userid) {
 }
 
 function newPresence(user) {
+  console.log("2");
   checkCurrentPositionInExcell();
   let tempdate = new Date();
   todaysDate = convertDateToString(tempdate);
@@ -165,6 +166,7 @@ function logError(data) {
 
 function newDay(user) {
   try {
+    console.log('3');
     PushThingsToGoogle(writeDateOnTop);
     position++;
     position++;
@@ -230,6 +232,7 @@ bot.on("message", msg => {
           case "närvaro": {
             if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
+              Console.log('1');
               bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
               newPresence(user.display_name);
               bot.postMessageToUser(msg.user, randomNr, params);
