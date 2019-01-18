@@ -10,9 +10,11 @@ let users = [];
 const clientID = process.env.ClientID;
 const ProjectId = process.env.ProjectId;
 const ClientSecret = process.env.ClientSecret;
-const credentials = `{"installed":{"client_id":${clientID},"project_id":${ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
+const credentials = `{"installed":{"client_id":${clientID},"project_id":${ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","https://presencebot4chas.herokuapp.com/"]}};`
 const envKey = process.env.SlackBotKey;
-const port = process.env.PORT;
+//const port = process.env.PORT;
+
+
 
 
 
@@ -34,7 +36,8 @@ bot.on('start', function () {
   checkCurrentPositionInExcell(); //test
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  bot.postMessageToUser("peter.heinum", port.toString(), params);
+  PushThingsToGoogle(writeDateOnTop);
+  //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
 
 function nameMassager(name) {
