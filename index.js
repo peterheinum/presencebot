@@ -37,6 +37,7 @@ let users = [];
 
 bot.on('start', function () {
   console.log("Good morning");
+  console.log(this.client_secret + this.ProjectId + this.clientID);
   randomNr = randomNumberGenerator();
   bot.postMessageToUser("peter.heinum", "Good morning", params);
   
@@ -169,7 +170,7 @@ function newDay(user) {
     position++;
     updateExcelCounter(position);
     randomNr = randomNumberGenerator();
-    bot.postMessageToUser(user.display_name, randomNr, params);
+    bot.postMessageToUser(user, randomNr, params);
     let data = `${todaysDate}@${randomNr.toString()}`;
     writeFile(data);
     return true;
@@ -209,7 +210,6 @@ bot.on("message", msg => {
           }
         });
 
-        console.log(user);
         
 
         let newRange = checkIfMessageIsSplittable(msg.text);
@@ -231,7 +231,7 @@ bot.on("message", msg => {
             if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
               bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
-              newPresence(user);
+              newPresence(user.display_name);
               bot.postMessageToUser(msg.user, randomNr, params);
             }
             break;
