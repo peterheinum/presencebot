@@ -5,7 +5,7 @@ const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
-const envKey = process.env.SlackBotKey;
+const envKey = process.env.slack;
 
 const bot = new SlackBot({
   token: envKey,
