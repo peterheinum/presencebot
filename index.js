@@ -232,7 +232,7 @@ bot.on("message", msg => {
           case "närvaro": {
             if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
-              Console.log('1');
+              console.log('1');
               bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
               newPresence(user.display_name);
               bot.postMessageToUser(msg.user, randomNr, params);
