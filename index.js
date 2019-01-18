@@ -37,7 +37,7 @@ let users = [];
 
 bot.on('start', function () {
   console.log("Good morning");
-  console.log(`${client_secret} ${ProjectId} ${clientID}`);
+  console.log(`${ClientSecret} ${ProjectId} ${clientID}`);
   randomNr = randomNumberGenerator();
   bot.postMessageToUser("peter.heinum", "Good morning", params);
   
