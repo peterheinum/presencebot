@@ -216,7 +216,7 @@ bot.on("message", msg => {
         
 
         let newRange = checkIfMessageIsSplittable(msg.text);
-        if(newRange != "no")
+        if(newRange != false)
         {
           let letter = changePositionFromLetter(newRange);          
           bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);          
@@ -231,7 +231,7 @@ bot.on("message", msg => {
           }
 
           case "närvaro": {
-            if (msg.user === "UCLA6T2AY" || msg.user === "U4WU831BJ") { //Peters och Axels  
+            if (user.display_name === "peter.heinum" || msg.user === "U4WU831BJ") { //Peters och Axels  
               presentUsers = [];
               bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params); 
               newPresence(user);
