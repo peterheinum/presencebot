@@ -6,9 +6,6 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
 const envKey = process.env.slack;
-
-
-
 const clientID = process.env.ClientID;
 const ProjectId = process.env.ProjectId;
 const ClientSecret = process.env.ClientSecret;
