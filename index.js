@@ -7,15 +7,18 @@ const TOKEN_PATH = 'token.json';
 
 const envKey = process.env.slack;
 
+
+
+const clientID = process.env.ClientID;
+const ProjectId = process.env.ProjectId;
+const ClientSecret = process.env.ClientSecret;
+
 const bot = new SlackBot({
   token: envKey,
   name: 'presencebot'
 });
 
-const clientID = process.env.ClientID;
-const ProjectId = process.env.ProjectId;
-const ClientSecret = process.env.ClientSecret;
-const credentials = `{"installed":{"client_id":${clientID},"project_id":${ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","https://presencebot4chas.herokuapp.com/"]}};`
+const credentials = `{"installed":{"client_id":${clientID},"project_id":${ProjectId},"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":${ClientSecret},"redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}};`
 
 //const port = process.env.PORT;
 
@@ -36,10 +39,8 @@ let users = [];
 // INIT MY BOT
 
 bot.on('start', function () {
-  checkCurrentPositionInExcell(); //test
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  PushThingsToGoogle(writeDateOnTop);
   bot.postMessageToUser("peter.heinum", "Good morning", params);
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
