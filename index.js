@@ -38,7 +38,7 @@ let users = [];
 bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  bot.postMessageToUser("peter.heinum", "Good morning", params);
+  //bot.postMessageToUser("peter.heinum", "Good morning", params);
 
   //bot.postMessageToUser("peter.heinum", port.toString(), params);
 });
