@@ -17,12 +17,6 @@ const bot = new SlackBot({
 
 const credentials = `{"installed":{"client_id":"${clientID}","project_id":"${ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
 
-//const port = process.env.PORT;
-
-
-
-
-
 // FOR THE FUTURE
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
@@ -38,13 +32,7 @@ let users = [];
 bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-<<<<<<< HEAD
-  checkCurrentPositionInExcell();
-=======
-  //bot.postMessageToUser("peter.heinum", "Good morning", params);
-
-  //bot.postMessageToUser("peter.heinum", port.toString(), params);
->>>>>>> 0712bef048d32332fb2b36a4397609687e6bbd3e
+  //checkCurrentPositionInExcell();
 });
 
 function nameMassager(name) {
