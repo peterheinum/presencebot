@@ -38,7 +38,13 @@ let users = [];
 bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
+<<<<<<< HEAD
   checkCurrentPositionInExcell();
+=======
+  //bot.postMessageToUser("peter.heinum", "Good morning", params);
+
+  //bot.postMessageToUser("peter.heinum", port.toString(), params);
+>>>>>>> 0712bef048d32332fb2b36a4397609687e6bbd3e
 });
 
 function nameMassager(name) {
