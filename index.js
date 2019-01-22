@@ -32,7 +32,7 @@ let users = [];
 bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
-  //checkCurrentPositionInExcell();
+  checkCurrentPositionInExcell();
 });
 
 function nameMassager(name) {
