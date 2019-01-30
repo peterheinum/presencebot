@@ -4,18 +4,24 @@ const readline = require('readline');
 const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
+//const dbhelper = require('./helpers/googleWriteDb.js');
 
-const envKey = process.env.slack;
-const clientID = process.env.ClientID;
-const ProjectId = process.env.ProjectId;
-const ClientSecret = process.env.ClientSecret;
+// const envKey = process.env.slack;
+// const clientID = process.env.ClientID;
+// const ProjectId = process.env.ProjectId;
+// const ClientSecret = process.env.ClientSecret;
 
+const credentials = `{"installed":{"client_id":"713624167226-rk4jfuppk3tjug2lmanu486a6nct8ont.apps.googleusercontent.com","project_id":"monday-1545144022762","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"axCSprmF8ODzG_ENck_HCqk0","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
+const envKey = "xoxb-166988133201-520082791441-TllTqphdBAowBUjy46Lsl7b5";
+const dbsheetid = "1q_68-0ctovY23_htvoQr0WDp-HIQlI2fpysNx4dEADA";
 const bot = new SlackBot({
   token: envKey,
   name: 'presencebot'
 });
 
-const credentials = `{"installed":{"client_id":"${clientID}","project_id":"${ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
+const testSheet = "125zKfvOuNmW6BplK6TaHiGHfqC1VVdsXVYFnvtahlq4";
+const schoolSheet = "1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME";
+// const credentials = `{"installed":{"client_id":"${clientID}","project_id":"${ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
 
 // FOR THE FUTURE
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
@@ -25,12 +31,14 @@ let temp4name;
 let position;
 let presentUsers = [];
 let users = [];
-
+let tempRange;
+let latestPosition;
 
 // INIT MY BOT
 
 bot.on('start', function () {
-  console.log("Good morning");
+  todaysDate = convertDateToString(new Date());
+  console.log("Good morning, todays date is " + todaysDate);
   randomNr = randomNumberGenerator();
   checkCurrentPositionInExcell();
 });
@@ -58,18 +66,15 @@ function capitalizeFirstLetter(string) {
 }
 
 function ResetCellCount(user) {
-  fs.writeFile('cellCount.txt', "0", function (err, data) {
-    if (err) console.log(err);
-    bot.postMessageToUser(user.display_name, "Succesfully reset the cellcounter to 0", params);
-  })
+  updateExcelCounterFromNumber('2');
   checkCurrentPositionInExcell();
+  bot.postMessageToUser(user.display_name, "Succesfully reset the cellcounter to 0", params);
 }
 
 function changePositionFromLetter(letter) {
   for (let i = 0; i < alphabet.length; i++) {
     if (letter.toUpperCase() == alphabet[i]) {
-      updateExcelCounter(i = i - 2);
-      return i = i + 2;
+       return [(i = i + 2),(i = i-2)];
     }
   }
 }
@@ -96,8 +101,7 @@ function checkIfUserPresent(userid) {
 
 function newPresence(user) {
   checkCurrentPositionInExcell();
-  let tempdate = new Date();
-  todaysDate = convertDateToString(tempdate);
+  todaysDate = convertDateToString(new Date());
 
   fs.readFile('datekey.txt', function (err, buf) {
     if (buf != undefined) {
@@ -116,28 +120,33 @@ function newPresence(user) {
   });
 }
 
-function updateExcelCounter(data) {
-  fs.writeFile('cellCount.txt', data, function (err, data) {
-    if (err) console.log(err);
-    console.log("Successfully updated cellcount to File.");
-  })
+function updateExcelCounterFromLetter(data, user) {
+  let letter = changePositionFromLetter(data);
+  tempRange = letter[1];
+  console.log(data + " " + letter[1]);
+  AuthorizeSheetFunction(updateGoogleDb);
+  //console.log(`${alphabet[letter[0]]}`);
+  if(user != undefined) 
+    bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter[0]]}`, params);
 }
 
+function updateExcelCounterFromNumber(data) {
+  tempRange = data;
+  position++;
+  position++;
+  AuthorizeSheetFunction(updateGoogleDb);
+}
+
+
 function checkCurrentPositionInExcell() {
-  fs.readFile('cellCount.txt', function (err, buf) {
-    position = buf.toString();
-  })
+  AuthorizeSheetFunction(ReadDateDb);
 }
 
 function reportCurrentCellInexcell(user) {
-  fs.readFile('cellCount.txt', function (err, buf) {
-    if (buf != undefined) {
-      let tempposition = buf.toString();
-      tempposition++;
-      tempposition++;
-      bot.postMessageToUser(user.display_name, `Current position in excell is ${alphabet[tempposition]}`, params);
-    }
-  })
+  let temp = position;
+  temp++;
+  temp++;
+  bot.postMessageToUser(user.display_name, `Current position in excell is ${alphabet[temp]}`, params);
 }
 
 
@@ -156,10 +165,8 @@ function logError(data) {
 
 
 function newDay(user) {
-  PushThingsToGoogle(writeDateOnTop);
-  position++;
-  position++;
-  updateExcelCounter(position);
+  AuthorizeSheetFunction(writeDateOnTop);  
+  updateExcelCounterFromNumber(position);
   randomNr = randomNumberGenerator();
   bot.postMessageToUser(user, randomNr, params);
   let data = `${todaysDate}@${randomNr.toString()}`;
@@ -200,8 +207,7 @@ bot.on("message", msg => {
 
         let newRange = checkIfMessageIsSplittable(msg.text);
         if (newRange != false) {
-          let letter = changePositionFromLetter(newRange);
-          bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);
+          updateExcelCounterFromLetter(newRange, user);          
         }
 
         switch (msg.text) {
@@ -225,7 +231,7 @@ bot.on("message", msg => {
             let tempdate = new Date();
             tempdate = convertDateToString(tempdate);
             temp4name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
-            PushThingsToGoogle(appendStuff);
+            AuthorizeSheetFunction(appendName);
             bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${temp4name}`, params);
             bot.postMessageToUser("info", `${temp4name} har nu anmält sig sjuk`, params);
           }
@@ -255,7 +261,7 @@ bot.on("message", msg => {
             let userPresent = checkIfUserPresent(msg.user);
             if (userPresent === false) {
               temp4name = nameMassager(user.real_name);
-              PushThingsToGoogle(appendStuff);
+              AuthorizeSheetFunction(appendName);
               pushUsertopresent(msg.user);
               bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${todaysDate}`, params);
               break;
@@ -341,12 +347,13 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
-function appendStuff(authClient) {
+function appendName(authClient) { 
   let rangePosition = alphabet[position];
+  console.log(rangePosition) + " rangeposition for name";
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: `${testSheet}`,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
@@ -370,7 +377,7 @@ function appendStuff(authClient) {
 
   sheets.spreadsheets.values.append(request, function (err, response) {
     if (err) {
-      console.error(err);
+      //console.error(err);
       return;
     }
   });
@@ -380,10 +387,11 @@ function writeDateOnTop(authClient) {
   let tempdate = new Date();
   tempdate = convertDateToString(tempdate);
   let rangePosition = alphabet[position];
+  console.log("positiong for date" + rangePosition);
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: `${testSheet}`,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
@@ -413,6 +421,8 @@ function writeDateOnTop(authClient) {
 }
 
 
+
+
 function appendSickPerson(authClient) {
   let tempdate = new Date();
   tempdate = convertDateToString(tempdate);
@@ -421,11 +431,11 @@ function appendSickPerson(authClient) {
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: `${testSheet}`,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
-    range: `Sheet1!$Z1:$Z1`,  // TODO: Update placeholder value.
+    range: `Sheet1!Z1:Z1`,  // TODO: Update placeholder value.
 
     // How the input data should be interpreted.
     valueInputOption: 'RAW',  // TODO: Update placeholder value.
@@ -450,13 +460,64 @@ function appendSickPerson(authClient) {
   });
 }
 
-function PushThingsToGoogle(funct) {
+function updateGoogleDb(authClient) {
+  let tempdate = new Date();
+  tempdate = convertDateToString(tempdate);
+  const sheets = google.sheets({ version: 'v4', authClient });
+  var request = {
+    // The ID of the spreadsheet to update.
+    spreadsheetId: `${dbsheetid}`,  // TODO: Update placeholder value.
+
+    // The A1 notation of a range to search for a logical table of data.
+    // Values will be appended after the last row of the table.
+    range: `dbsheet!A1:A1`,  // TODO: Update placeholder value.
+
+    // How the input data should be interpreted.
+    valueInputOption: 'RAW',  // TODO: Update placeholder value.
+
+    // How the input data should be inserted.
+    insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
+
+    resource: {
+      "values": [
+        [
+          `${tempdate}@${tempRange}`
+        ]
+      ]
+      // TODO: Add desired properties to the request body.
+    },
+    auth: authClient,
+  };
+
+  sheets.spreadsheets.values.append(request, function(err, response) {
+    if (err) {
+      //console.error(err);
+      return;
+    }
+  });
+}
+
+function ReadDateDb(auth) {
+  const sheets = google.sheets({version: 'v4', auth});
+  sheets.spreadsheets.values.get({
+    spreadsheetId: `${dbsheetid}`,
+    range: 'dbsheet!A:B',
+  }, (err, res) => {
+    if (err) return console.log('The API returned an error: ' + err);
+    const rows = res.data.values;
+    if (rows.length) {      
+      let lastItem = rows[rows.length-1];      
+      lastItem = lastItem.toString().split('@');
+      position = lastItem[1];
+      console.log(position);
+    } else {
+      console.log('No data found.');
+    }
+    
+  });
+}
+
+function AuthorizeSheetFunction(funct) {
   authorize(JSON.parse(credentials), funct);
-  // fs.readFile('credentials.json', (err, content) => {
-  //   if (err) return console.log('Error loading client secret file:', err);
-  //   // Authorize a client with credentials, then call the Google Sheets API.
-  //   
-  //   authorize(JSON.parse(content), funct); 
-  // });
 }
 //__________________________GOOOGLE STUFF___________________________\\
