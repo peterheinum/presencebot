@@ -11,8 +11,6 @@ const TOKEN_PATH = 'token.json';
 // const ProjectId = process.env.ProjectId;
 // const ClientSecret = process.env.ClientSecret;
 
-const credentials = `{"installed":{"client_id":"713624167226-rk4jfuppk3tjug2lmanu486a6nct8ont.apps.googleusercontent.com","project_id":"monday-1545144022762","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"axCSprmF8ODzG_ENck_HCqk0","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
-const envKey = "xoxb-166988133201-520082791441-TllTqphdBAowBUjy46Lsl7b5";
 const dbsheetid = "1q_68-0ctovY23_htvoQr0WDp-HIQlI2fpysNx4dEADA";
 const bot = new SlackBot({
   token: envKey,
