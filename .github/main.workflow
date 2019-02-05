@@ -12,13 +12,13 @@ action "login" {
 action "push" {
   uses = "actions/heroku@master"
   needs = "login"
-  args = "container:push -a chas-academy-prescencebot web"
+  args = "container:push -a chas-academy-presencebot web"
   secrets = ["HEROKU_API_KEY"]
 }
 
 action "release" {
   uses = "actions/heroku@master"
   needs = "push"
-  args = "container:release -a chas-academy-prescencebot web"
+  args = "container:release -a chas-academy-presencebot web"
   secrets = ["HEROKU_API_KEY"]
 }
