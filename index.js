@@ -1,3 +1,5 @@
+require('dotenv').config()
+const express = require('express')();
 const SlackBot = require('slackbots');
 const fs = require('fs');
 const readline = require('readline');
@@ -5,30 +7,32 @@ const { google } = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
+
+express.get('/', (req, res) => {
+  res.send('<body style="margin:0px;"><div style="display:flex;justify-content:center;align-items:center; width:100vw; background-color:peachpuff; height:100vh; flex-direction:column;"> <b> <h1>Presencebot</h1> </b>   The main function of the program is to register users from slack and put their names into excell documents. <br> <br> The bot has a couple of functions which are all listed if you write help (axel will get different response since he has more functions available). <br> <br> One implication is that the bot is currently using append on to add names to google sheets. <br> The append function is a weird function that only works if there is a space between the last columnn. <br> So if the bot were to start writing in the column next to another, it will append all the names in the last column instead. <br><br> <b> Therefore its important to make sure that you change to a correct new cell if you want to use the "jumpcell-*" comand </b><br> <br> Sphagetti programmer <a style="color:darkblue;" href="https://github.com/peterheinum/">Peter Heinum</a><br> Donations <br> Coming soon</div> ');
+});
+
 const envKey = process.env.slack;
 const clientID = process.env.ClientID;
 const ProjectId = process.env.ProjectId;
 const ClientSecret = process.env.ClientSecret;
-
 const bot = new SlackBot({
   token: envKey,
   name: 'presencebot'
 });
 
 const credentials = `{"installed":{"client_id":"${clientID}","project_id":"${ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
-
-// FOR THE FUTURE
+const schoolSheet = '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME';
+const schoolSheet2 = '1Eb-F7_iUxZslKTaGZwiFqId4UyQhRqokaYCONOhi5n0';
+const sickSheet = '1gZr80-DRYvz6tY4e3skVmHZ2oMeecoWaUHwPgLClsVU';
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let todaysDate;
 let randomNr;
 let temp4name;
 let position;
 let presentUsers = [];
-let users = [];
-
 
 // INIT MY BOT
-
 bot.on('start', function () {
   console.log("Good morning");
   randomNr = randomNumberGenerator();
@@ -50,7 +54,6 @@ function checkIfMessageIsSplittable(msg) {
   } else {
     return false;
   }
-
 }
 
 function capitalizeFirstLetter(string) {
@@ -156,7 +159,7 @@ function logError(data) {
 
 
 function newDay(user) {
-  PushThingsToGoogle(writeDateOnTop);
+  AuthorizeSheetsFunction(writeDateOnTop);
   position++;
   position++;
   updateExcelCounter(position);
@@ -185,7 +188,7 @@ bot.on("message", msg => {
   switch (msg.type) {
     case "message":
       if (msg.channel[0] === "D" && msg.bot_id === undefined) {
-        users = bot.getUsers();
+        let users = bot.getUsers();
         lastmessage = msg.text;
         let user;
 
@@ -225,7 +228,7 @@ bot.on("message", msg => {
             let tempdate = new Date();
             tempdate = convertDateToString(tempdate);
             temp4name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
-            PushThingsToGoogle(appendStuff);
+            AuthorizeSheetsFunction(appendSickPerson);
             bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${temp4name}`, params);
             bot.postMessageToUser("info", `${temp4name} har nu anmält sig sjuk`, params);
           }
@@ -255,7 +258,7 @@ bot.on("message", msg => {
             let userPresent = checkIfUserPresent(msg.user);
             if (userPresent === false) {
               temp4name = nameMassager(user.real_name);
-              PushThingsToGoogle(appendStuff);
+              AuthorizeSheetsFunction(appendStuff);
               pushUsertopresent(msg.user);
               bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${todaysDate}`, params);
               break;
@@ -346,7 +349,7 @@ function appendStuff(authClient) {
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: schoolSheet2,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
@@ -383,7 +386,7 @@ function writeDateOnTop(authClient) {
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: schoolSheet2,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
@@ -414,18 +417,15 @@ function writeDateOnTop(authClient) {
 
 
 function appendSickPerson(authClient) {
-  let tempdate = new Date();
-  tempdate = convertDateToString(tempdate);
-  let cellvalue = `SICK - ${temp4name} ${tempdate}`;
-  let rangePosition = alphabet[position];
+  let cellvalue = `${temp4name}`;
   const sheets = google.sheets({ version: 'v4', authClient });
   var request = {
     // The ID of the spreadsheet to update.
-    spreadsheetId: '1UNygp0ryulW0FtB45rkOyoOOsXtxw8UNR3LSVKQVBME',  // TODO: Update placeholder value.
+    spreadsheetId: sickSheet,  // TODO: Update placeholder value.
 
     // The A1 notation of a range to search for a logical table of data.
     // Values will be appended after the last row of the table.
-    range: `Sheet1!$Z1:$Z1`,  // TODO: Update placeholder value.
+    range: `Sheet1!$A1:$A1`,  // TODO: Update placeholder value.
 
     // How the input data should be interpreted.
     valueInputOption: 'RAW',  // TODO: Update placeholder value.
@@ -450,7 +450,7 @@ function appendSickPerson(authClient) {
   });
 }
 
-function PushThingsToGoogle(funct) {
+function AuthorizeSheetsFunction(funct) {
   authorize(JSON.parse(credentials), funct);
   // fs.readFile('credentials.json', (err, content) => {
   //   if (err) return console.log('Error loading client secret file:', err);
