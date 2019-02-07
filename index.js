@@ -9,7 +9,7 @@ const TOKEN_PATH = 'token.json';
 
 
 express.get('/', (req, res) => {
-  res.send('<body style="margin:0px;"><div style="display:flex;justify-content:center;align-items:center; width:100vw; background-color:peachpuff; height:100vh; flex-direction:column;"> <b> <h1>Presencebot</h1> </b>   The main function of the program is to register users from slack and put their names into excell documents. <br> <br> The bot has a couple of functions which are all listed if you write help (axel will get different response since he has more functions available). <br> <br> One implication is that the bot is currently using append on to add names to google sheets. <br> The append function is a weird function that only works if there is a space between the last columnn. <br> So if the bot were to start writing in the column next to another, it will append all the names in the last column instead. <br><br> <b> Therefore its important to make sure that you change to a correct new cell if you want to use the "jumpcell-*" comand </b><br> <br> Sphagetti programmer <a style="color:darkblue;" href="https://github.com/peterheinum/">Peter Heinum</a><br> Donations <br> Coming soon</div> ');
+  res.sendFile('test.html');
 });
 
 const port = process.env.PORT;
