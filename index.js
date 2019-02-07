@@ -9,7 +9,7 @@ const TOKEN_PATH = 'token.json';
 
 
 express.get('/', (req, res) => {
-  res.sendFile('test.html');
+  res.sendFile(__dirname + 'test.html');
 });
 
 const port = process.env.PORT;
