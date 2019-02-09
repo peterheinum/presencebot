@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require('express')();
 const SlackBot = require('slackbots');
 const fs = require('fs');
-const { google } = require('googleapis');
 const Auth = require('./google/auth');
-const oAuth2Client = require('./google/auth')
+const sheetsFunctions = require('./google/sheets')
+const sharedvars = require('./helpers/sharedvars');
 
 express.get('/', (req, res) => {
 	res.sendFile(__dirname + '/test.html');
@@ -19,21 +19,47 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-const schoolSheet2 = process.env.SCHOOLSHEET;
-const sickSheet = '1gZr80-DRYvz6tY4e3skVmHZ2oMeecoWaUHwPgLClsVU';
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
-let todaysDate;
-let randomNr;
-let temp4name;
-let position;
+
 let presentUsers = [];
 
+
+sharedvars.alphabet = [
+  'this aint no ordinary thing',
+  'Please lord forgive me for my sins',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z'
+]
+sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
-	randomNr = randomNumberGenerator();
+	sharedvars.randomNr = randomNumberGenerator();
 	checkCurrentPositionInExcell();
-
 });
 
 function nameMassager(name) {
@@ -66,8 +92,8 @@ function ResetCellCount(user) {
 }
 
 function changePositionFromLetter(letter) {
-	for (let i = 0; i < alphabet.length; i++) {
-		if (letter.toUpperCase() == alphabet[i]) {
+	for (let i = 0; i < sharedvars.alphabet.length; i++) {
+		if (letter.toUpperCase() == sharedvars.alphabet[i]) {
 			updateExcelCounter(i = i - 2);
 			return i = i + 2;
 		}
@@ -97,12 +123,12 @@ function checkIfUserPresent(userid) {
 function newPresence(user) {
 	checkCurrentPositionInExcell();
 	let tempdate = new Date();
-	todaysDate = convertDateToString(tempdate);
+	sharedvars.todaysDate = convertDateToString(tempdate);
 
 	fs.readFile('src/datekey.txt', function (err, buf) {
 		if (buf != undefined) {
 			let dateKey = buf.toString().split('@');
-			if (todaysDate !== dateKey[0]) {
+			if (sharedvars.todaysDate !== dateKey[0]) {
 				if (newDay(user) == true) {
 					//If creating new day succeeded
 				}
@@ -111,7 +137,7 @@ function newPresence(user) {
 			}
 		}
 		else {
-			logError('Couldn\'t read file: ' + todaysDate);
+			logError('Couldn\'t read file: ' + sharedvars.todaysDate);
 		}
 	});
 }
@@ -125,7 +151,7 @@ function updateExcelCounter(data) {
 
 function checkCurrentPositionInExcell() {
 	fs.readFile('src/cellCount.txt', function (err, buf) {
-		position = buf.toString();
+		sharedvars.position = buf.toString();
 	});
 }
 
@@ -135,7 +161,7 @@ function reportCurrentCellInexcell(user) {
 			let tempposition = buf.toString();
 			tempposition++;
 			tempposition++;
-			bot.postMessageToUser(user.display_name, `Current position in excell is ${alphabet[tempposition]}`, params);
+			bot.postMessageToUser(user.display_name, `Current position in excell is ${sharedvars.alphabet[tempposition]}`, params);
 		}
 	});
 }
@@ -156,13 +182,14 @@ function logError(data) {
 
 
 function newDay(user) {
-	Auth.AuthorizeSheetsFunction(writeDateOnTop);
-	position++;
-	position++;
-	updateExcelCounter(position);
-	randomNr = randomNumberGenerator();
-	bot.postMessageToUser(user, randomNr, params);
-	let data = `${todaysDate}@${randomNr.toString()}`;
+	Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
+	sharedvars.position =	parseInt(sharedvars.position) + 2;
+	 
+
+	updateExcelCounter(sharedvars.position);
+	sharedvars.randomNr = randomNumberGenerator();
+	bot.postMessageToUser(user, sharedvars.randomNr, params);
+	let data = `${sharedvars.todaysDate}@${sharedvars.randomNr.toString()}`;
 	writeFile(data);
 }
 
@@ -188,21 +215,16 @@ bot.on('message', msg => {
 				let users = bot.getUsers();
 				lastmessage = msg.text;
 				let user;
-
-
 				users._value.members.forEach(e => {
 					if (e.id === msg.user) {
 						user = e.profile;
 					}
 				});
 
-
-
-
 				let newRange = checkIfMessageIsSplittable(msg.text);
 				if (newRange != false) {
 					let letter = changePositionFromLetter(newRange);
-					bot.postMessageToUser(user.display_name, `new range is ${alphabet[letter]}`, params);
+					bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
 				}
 
 				switch (msg.text) {
@@ -218,17 +240,17 @@ bot.on('message', msg => {
 							presentUsers = [];
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
-							bot.postMessageToUser(msg.user, randomNr, params);
+							bot.postMessageToUser(msg.user, sharedvars.randomNr, params);
 						}
 						break;
 					}
 					case 'sick': {
 						let tempdate = new Date();
 						tempdate = convertDateToString(tempdate);
-						temp4name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
-						Auth.AuthorizeSheetsFunction(appendSickPerson);
-						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${temp4name}`, params);
-						bot.postMessageToUser('info', `${temp4name} har nu anmält sig sjuk`, params);
+						sharedvars.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
+						Auth.AuthorizeSheetsFunction(sheetsFunctions.appendSickPerson);
+						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${sharedvars.name}`, params);
+						bot.postMessageToUser('info', `${sharedvars.name} har nu anmält sig sjuk`, params);
 					}
 						break;
 
@@ -252,13 +274,13 @@ bot.on('message', msg => {
 					default: bot.postMessageToUser(user.display_name, 'Någonting förstods ej, skriv help ifall du behöver stöd (de flesta utav kommandon kommer bara axel åt!)', params);
 						break;
 
-					case randomNr.toString(): {
+					case sharedvars.randomNr.toString(): {
 						let userPresent = checkIfUserPresent(msg.user);
 						if (userPresent === false) {
-							temp4name = nameMassager(user.real_name);
-							Auth.AuthorizeSheetsFunction(appendStuff);
+							sharedvars.name = nameMassager(user.real_name);
+							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
 							pushUsertopresent(msg.user);
-							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${todaysDate}`, params);
+							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysDate}`, params);
 							break;
 						} else {
 							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
@@ -271,143 +293,4 @@ bot.on('message', msg => {
 
 	}
 });
-
-const alphabet = [
-	'this aint no ordinary thing',
-	'Please lord forgive me for my sins',
-	'A',
-	'B',
-	'C',
-	'D',
-	'E',
-	'F',
-	'G',
-	'H',
-	'I',
-	'J',
-	'K',
-	'L',
-	'M',
-	'N',
-	'O',
-	'P',
-	'Q',
-	'R',
-	'S',
-	'T',
-	'U',
-	'V',
-	'W',
-	'X',
-	'Y',
-	'Z'
-];
-
-function appendStuff(authClient) {
-	let rangePosition = alphabet[position];
-	const sheets = google.sheets({ version: 'v4', authClient });
-	let request = {
-		// The ID of the spreadsheet to update.
-		spreadsheetId: schoolSheet2,  // TODO: Update placeholder value.
-
-		// The A1 notation of a range to search for a logical table of data.
-		// Values will be appended after the last row of the table.
-		range: `Sheet1!${rangePosition}1:${rangePosition}1`,  // TODO: Update placeholder value.
-
-		// How the input data should be interpreted.
-		valueInputOption: 'RAW',  // TODO: Update placeholder value.
-
-		// How the input data should be inserted.
-		insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
-
-		resource: {
-			'values': [
-				[temp4name],
-			]
-			// TODO: Add desired properties to the request body.
-		},
-		auth: authClient,
-	};
-
-
-	sheets.spreadsheets.values.append(request, function (err, response) {
-		if (err) {
-			//console.error(err);
-			return;
-		}
-	});
-}
-
-function writeDateOnTop(authClient) {
-	let tempdate = new Date();
-	tempdate = convertDateToString(tempdate);
-	let rangePosition = alphabet[position];
-	const sheets = google.sheets({ version: 'v4', authClient });
-	let request = {
-		// The ID of the spreadsheet to update.
-		spreadsheetId: schoolSheet2,  // TODO: Update placeholder value.
-
-		// The A1 notation of a range to search for a logical table of data.
-		// Values will be appended after the last row of the table.
-		range: `Sheet1!${rangePosition}1:${rangePosition}1`,  // TODO: Update placeholder value.
-
-		// How the input data should be interpreted.
-		valueInputOption: 'RAW',  // TODO: Update placeholder value.
-
-		// How the input data should be inserted.
-		insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
-
-		resource: {
-			'values': [
-				[tempdate],
-			]
-			// TODO: Add desired properties to the request body.
-		},
-		auth: authClient,
-	};
-
-	sheets.spreadsheets.values.append(request, function (err, response) {
-		if (err) {
-			//console.error(err);
-			return;
-		}
-	});
-}
-
-
-function appendSickPerson(authClient) {
-	let cellvalue = `${temp4name}`;
-	const sheets = google.sheets({ version: 'v4', authClient });
-	let request = {
-		// The ID of the spreadsheet to update.
-		spreadsheetId: sickSheet,  // TODO: Update placeholder value.
-
-		// The A1 notation of a range to search for a logical table of data.
-		// Values will be appended after the last row of the table.
-		range: 'Sheet1!$A1:$A1',  // TODO: Update placeholder value.
-
-		// How the input data should be interpreted.
-		valueInputOption: 'RAW',  // TODO: Update placeholder value.
-
-		// How the input data should be inserted.
-		insertDataOption: 'OVERWRITE',  // TODO: Update placeholder value.
-
-		resource: {
-			'values': [
-				[cellvalue],
-			]
-			// TODO: Add desired properties to the request body.
-		},
-		auth: authClient,
-	};
-
-	sheets.spreadsheets.values.append(request, function (err, response) {
-		if (err) {
-			//console.error(err);
-			return;
-		}
-	});
-}
-
-
 

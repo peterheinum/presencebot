@@ -13,22 +13,11 @@ const Auth = {
     const oAuth2Client = new google.auth.OAuth2(
       client_id, client_secret, redirect_uris[0],
     );
-
-
     fs.readFile(TOKEN_PATH, (err, token) => {
       if (err) return getNewToken(oAuth2Client, callback);
       oAuth2Client.setCredentials(JSON.parse(token));
       callback(oAuth2Client);
     });
-    // // Check if we have previously stored a token.
-    // try {
-    //   this.getNewToken(oAuth2Client, callback);
-      
-    //   // oAuth2Client.setCredentials(token);
-    //   // callback(oAuth2Client);
-    // } catch {
-    //   this.getNewToken(oAuth2Client, callback);
-    // }
   },
 
   AuthorizeSheetsFunction(funct) {
