@@ -2,8 +2,7 @@ const sharedvars = require('../helpers/sharedvars');
 const { google } = require('googleapis');
 
 const sheetsFunctions = {
-  writeDateOnTop(authClient) {    
-    console.log(authClient);
+  writeDateOnTop(authClient) {
     let rangePosition = sharedvars.alphabet[sharedvars.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
