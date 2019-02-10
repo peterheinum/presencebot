@@ -5,6 +5,9 @@ const sheetsFunctions = {
   writeDateOnTop(authClient) {    
     console.log("station 2 checking in");
     let rangePosition = sharedvars.alphabet[sharedvars.position];
+    console.log(rangePosition);
+    console.log(sharedvars.schoolSheet2);
+    console.log(authClient);
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
       spreadsheetId: sharedvars.schoolSheet2, 
