@@ -4,6 +4,7 @@ const { google } = require('googleapis');
 const sheetsFunctions = {
   writeDateOnTop(authClient) {    
     authClient._clientId = process.env.clientID;
+    console.log(authClient);
     let rangePosition = sharedvars.alphabet[sharedvars.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
