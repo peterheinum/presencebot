@@ -27,7 +27,6 @@ const sheetsFunctions = {
   },
 
   appendName(authClient) {
-    authClient._clientId = process.env.clientID;
     let rangePosition = sharedvars.alphabet[sharedvars.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
