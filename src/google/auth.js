@@ -5,7 +5,7 @@ const readline = require('readline');
 const { google } = require('googleapis');
 
 const TOKEN_PATH = 'src/token.json';
-const CLIENTID = process.env.clientID;
+const CLIENTID = process.env.ClientID;
 const PROJECTID = process.env.ProjectId;
 const CLIENTSECRET = process.env.ClientSecret;
 
