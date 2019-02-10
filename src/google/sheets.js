@@ -3,11 +3,8 @@ const { google } = require('googleapis');
 
 const sheetsFunctions = {
   writeDateOnTop(authClient) {    
-    console.log("station 2 checking in");
+    authClient._clientId = process.env.clientID;
     let rangePosition = sharedvars.alphabet[sharedvars.position];
-    console.log(rangePosition);
-    console.log(sharedvars.schoolSheet2);
-    console.log(authClient);
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
       spreadsheetId: sharedvars.schoolSheet2, 
@@ -30,6 +27,7 @@ const sheetsFunctions = {
   },
 
   appendName(authClient) {
+    authClient._clientId = process.env.clientID;
     let rangePosition = sharedvars.alphabet[sharedvars.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
