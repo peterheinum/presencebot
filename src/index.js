@@ -124,7 +124,7 @@ function newPresence(user) {
 	checkCurrentPositionInExcell();
 	let tempdate = new Date();
 	sharedvars.todaysDate = convertDateToString(tempdate);
-
+	console.log("station 1.5 checking in");
 	fs.readFile('src/datekey.txt', function (err, buf) {
 		if (buf != undefined) {
 			let dateKey = buf.toString().split('@');
@@ -184,7 +184,6 @@ function logError(data) {
 function newDay(user) {
 	Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
 	sharedvars.position =	parseInt(sharedvars.position) + 2;
-	 
 
 	updateExcelCounter(sharedvars.position);
 	sharedvars.randomNr = randomNumberGenerator();
@@ -237,6 +236,7 @@ bot.on('message', msg => {
 
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
+							console.log("station 1 checking in");
 							presentUsers = [];
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);

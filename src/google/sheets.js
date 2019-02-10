@@ -3,9 +3,8 @@ const { google } = require('googleapis');
 
 const sheetsFunctions = {
   writeDateOnTop(authClient) {    
+    console.log("station 2 checking in");
     let rangePosition = sharedvars.alphabet[sharedvars.position];
-    console.log(sharedvars.alphabet + "    " + sharedvars.position);
-    console.log(sharedvars.todaysDate);
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
       spreadsheetId: sharedvars.schoolSheet2, 
