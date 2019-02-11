@@ -6,12 +6,17 @@ const Auth = require('./google/auth');
 const sheetsFunctions = require('./google/sheets')
 const sharedvars = require('./helpers/sharedvars');
 
+
+// ---- For the splash page ---- ||
 express.get('/', (req, res) => {
 	res.sendFile(__dirname + '/test.html');
 });
-
 const port = process.env.PORT;
 express.listen(port);
+// ---- For the splash page ---- ||
+
+const params = { 'presencebot': true, icon_emoji: ':sun:' };
+let presentUsers = [];
 
 const envKey = process.env.slack;
 const bot = new SlackBot({
@@ -19,48 +24,132 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-const params = { 'presencebot': true, icon_emoji: ':sun:' };
-
-let presentUsers = [];
-
-
 sharedvars.alphabet = [
-  'this aint no ordinary thing',
-  'Please lord forgive me for my sins',
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z'
+	'this aint no ordinary thing',
+	'Please lord forgive me for my sins',
+	'A',
+	'B',
+	'C',
+	'D',
+	'E',
+	'F',
+	'G',
+	'H',
+	'I',
+	'J',
+	'K',
+	'L',
+	'M',
+	'N',
+	'O',
+	'P',
+	'Q',
+	'R',
+	'S',
+	'T',
+	'U',
+	'V',
+	'W',
+	'X',
+	'Y',
+	'Z'
 ]
-sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
+
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
 	sharedvars.randomNr = randomNumberGenerator();
 	checkCurrentPositionInExcell();
 });
+
+
+bot.on('message', msg => {
+	switch (msg.type) {
+		case 'message':
+			if (msg.channel[0] === 'D' && msg.bot_id === undefined) {
+				msg.text = msg.text.toLowerCase();
+				let users = bot.getUsers();
+				let user;
+				users._value.members.find(e => {
+					if (e.id === msg.user) {
+						user = e.profile;
+					}
+				});
+
+				let newRange = checkIfMessageIsSplittable(msg.text);
+				if (newRange != false) {
+					let letter = changePositionFromLetter(newRange);
+					bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
+				}
+				
+				switch (msg.text) {
+					case 'cellreset': {
+						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+							ResetCellCount(user);
+						}
+						break;
+					}
+
+					case 'närvaro': {
+						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
+							sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
+							presentUsers = [];
+							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
+							newPresence(user.display_name);
+							bot.postMessageToUser(msg.user, sharedvars.randomNr, params);
+						}
+						break;
+					}
+					case 'sick': {
+						let tempdate = new Date();
+						tempdate = convertDateToString(tempdate);
+						sharedvars.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
+						Auth.AuthorizeSheetsFunction(sheetsFunctions.appendSickPerson);
+						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${sharedvars.name}`, params);
+						bot.postMessageToUser('info', `${sharedvars.name} har nu anmält sig sjuk`, params);
+					}
+						break;
+
+					case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+						ResetDateKeyCount(user);
+					}
+						break;
+
+					case 'help': {
+						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+							bot.postMessageToUser(user.display_name, '\'närvaro\' för att starta botten, \'datereset\' för att ta bort dagens kod, \'currentcell\' för att ta reda på vart botten kommer skriva härnäst, \'jumpcell-*\' för att byta  till cell', params);
+						} else { bot.postMessageToUser(user.display_name, 'Skriv koden Axel uppger för att få närvaro, eller om du är sjuk skriv \'sick\'', params); }
+						break;
+					}
+
+					case 'currentcell': {
+						reportCurrentCellInexcell(user);
+						break;
+					}
+
+					default: bot.postMessageToUser(user.display_name, 'Någonting förstods ej, skriv help ifall du behöver stöd (de flesta utav kommandon kommer bara axel åt!)', params);
+						break;
+
+					case sharedvars.randomNr.toString(): {
+						let userPresent = checkIfUserPresent(msg.user);
+						if (userPresent === false) {
+							sharedvars.name = nameMassager(user.real_name);
+							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
+							pushUsertopresent(msg.user);
+							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysDate}`, params);
+							break;
+						} else {
+							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
+							break;
+						}
+					}
+				}
+
+			}
+	}
+});
+
+
 
 function nameMassager(name) {
 	name = name.split('.');
@@ -182,7 +271,7 @@ function logError(data) {
 
 function newDay(user) {
 	Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
-	sharedvars.position =	parseInt(sharedvars.position) + 2;
+	sharedvars.position = parseInt(sharedvars.position) + 2;
 
 	updateExcelCounter(sharedvars.position);
 	sharedvars.randomNr = randomNumberGenerator();
@@ -204,91 +293,3 @@ function convertDateToString(date) {
 	newDate += date.getDate();
 	return newDate;
 }
-
-
-bot.on('message', msg => {
-	switch (msg.type) {
-		case 'message':
-			if (msg.channel[0] === 'D' && msg.bot_id === undefined) {
-				let users = bot.getUsers();
-				lastmessage = msg.text;
-				let user;
-				users._value.members.forEach(e => {
-					if (e.id === msg.user) {
-						user = e.profile;
-					}
-				});
-
-				let newRange = checkIfMessageIsSplittable(msg.text);
-				if (newRange != false) {
-					let letter = changePositionFromLetter(newRange);
-					bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
-				}
-
-				switch (msg.text) {
-					case 'cellreset': {
-						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-							ResetCellCount(user);
-						}
-						break;
-					}
-
-					case 'närvaro': {
-						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
-							presentUsers = [];
-							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
-							newPresence(user.display_name);
-							bot.postMessageToUser(msg.user, sharedvars.randomNr, params);
-						}
-						break;
-					}
-					case 'sick': {
-						let tempdate = new Date();
-						tempdate = convertDateToString(tempdate);
-						sharedvars.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
-						Auth.AuthorizeSheetsFunction(sheetsFunctions.appendSickPerson);
-						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${sharedvars.name}`, params);
-						bot.postMessageToUser('info', `${sharedvars.name} har nu anmält sig sjuk`, params);
-					}
-						break;
-
-					case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-						ResetDateKeyCount(user);
-					}
-						break;
-
-					case 'help': {
-						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-							bot.postMessageToUser(user.display_name, '\'närvaro\' för att starta botten, \'datereset\' för att ta bort dagens kod, \'currentcell\' för att ta reda på vart botten kommer skriva härnäst, \'jumpcell-*\' för att byta  till cell', params);
-						} else { bot.postMessageToUser(user.display_name, 'Skriv koden Axel uppger för att få närvaro, eller om du är sjuk skriv \'sick\'', params); }
-						break;
-					}
-
-					case 'currentcell': {
-						reportCurrentCellInexcell(user);
-						break;
-					}
-
-					default: bot.postMessageToUser(user.display_name, 'Någonting förstods ej, skriv help ifall du behöver stöd (de flesta utav kommandon kommer bara axel åt!)', params);
-						break;
-
-					case sharedvars.randomNr.toString(): {
-						let userPresent = checkIfUserPresent(msg.user);
-						if (userPresent === false) {
-							sharedvars.name = nameMassager(user.real_name);
-							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
-							pushUsertopresent(msg.user);
-							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysDate}`, params);
-							break;
-						} else {
-							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
-							break;
-						}
-					}
-				}
-
-			}
-
-	}
-});
-
