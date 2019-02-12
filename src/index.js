@@ -5,7 +5,7 @@ const fs = require('fs');
 const Auth = require('./google/auth');
 const sheetsFunctions = require('./google/sheets')
 const sharedvars = require('./helpers/sharedvars');
-
+const db = require('./db/dbHelper');
 
 // ---- For the splash page ---- ||
 express.get('/', (req, res) => {
@@ -60,7 +60,10 @@ bot.on('start', function () {
 	console.log('Good morning');
 	sharedvars.randomNr = randomNumberGenerator();
 	checkCurrentPositionInExcell();
+	db.update('cellcount','6');
 });
+
+
 
 
 bot.on('message', msg => {
@@ -81,7 +84,7 @@ bot.on('message', msg => {
 					let letter = changePositionFromLetter(newRange);
 					bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
 				}
-				
+
 				switch (msg.text) {
 					case 'cellreset': {
 						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
@@ -231,10 +234,7 @@ function newPresence(user) {
 }
 
 function updateExcelCounter(data) {
-	fs.writeFile('src/cellCount.txt', data, function (err, data) {
-		if (err) console.log(err);
-		console.log('Successfully updated cellcount to File.');
-	});
+	db.update('cellcount', data);
 }
 
 function checkCurrentPositionInExcell() {
