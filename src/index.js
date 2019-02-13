@@ -226,6 +226,7 @@ function newPresence(user) {
 }
 
 function updateExcelCounter(data) {
+	sharedvars.position = data;
 	db.update('position', data.toString());
 }
 
