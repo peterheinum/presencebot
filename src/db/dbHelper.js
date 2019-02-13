@@ -2,11 +2,12 @@ const sharedvars = require('../helpers/sharedvars');
 const MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
-const dbName = 'heroku_wgxl79cm';
-const url = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@ds119445.mlab.com:19445/heroku_wgxl79cm`;
+const dbName = process.env.MONGO_DB_NAME;
+const url = process.env.MONGODB_URI;
 const dbHelper = {
   insert: (data) => {
     MongoClient.connect(url, function (err, db) {
+      console.log("connected");
       assert.equal(null, err);
       let dbo = db.db(dbName);
       console.log("inserting: " + data);

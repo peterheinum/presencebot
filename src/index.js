@@ -69,7 +69,7 @@ bot.on('start', function () {
 	// 	todaysdate: convertDateToString(new Date())
 	// })
 	// db.insert({
-	// 	position: '2'
+	// 	position: '6'
 	// })
 });
 
