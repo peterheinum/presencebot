@@ -12,7 +12,7 @@ const credentials = `{"installed":{"client_id":"${process.env.ClientID}","projec
 const Auth = {
   authorize(credentials, callback) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
-    if(client_id == undefined) client_id = process.env.ClientID;
+    if (client_id == undefined) client_id = process.env.ClientID;
     const oAuth2Client = new google.auth.OAuth2(
       client_id, client_secret, redirect_uris[0],
     );

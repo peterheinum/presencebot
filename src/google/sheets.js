@@ -12,7 +12,7 @@ const sheetsFunctions = {
       insertDataOption: 'OVERWRITE',  
       resource: {
         'values': [
-          [sharedvars.todaysDate],
+          [sharedvars.todaysdate],
         ]
       },
       auth: authClient,

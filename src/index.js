@@ -59,12 +59,19 @@ sharedvars.alphabet = [
 bot.on('start', function () {
 	console.log('Good morning');
 	sharedvars.randomNr = randomNumberGenerator();
-	checkCurrentPositionInExcell();
-	db.update('cellcount','6');
+	 db.read('randomnr');
+	 db.read('position');
+	 db.read('todaysdate');
+	// db.insert({
+	// 	randomnr: sharedvars.randomNr.toString()
+	// })
+	// db.insert({
+	// 	todaysdate: convertDateToString(new Date())
+	// })
+	// db.insert({
+	// 	position: '2'
+	// })
 });
-
-
-
 
 bot.on('message', msg => {
 	switch (msg.type) {
@@ -86,13 +93,6 @@ bot.on('message', msg => {
 				}
 
 				switch (msg.text) {
-					case 'cellreset': {
-						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-							ResetCellCount(user);
-						}
-						break;
-					}
-
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
 							sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
@@ -126,20 +126,20 @@ bot.on('message', msg => {
 					}
 
 					case 'currentcell': {
+						checkCurrentPositionInExcell();
 						reportCurrentCellInexcell(user);
 						break;
 					}
 
-					default: bot.postMessageToUser(user.display_name, 'Någonting förstods ej, skriv help ifall du behöver stöd (de flesta utav kommandon kommer bara axel åt!)', params);
+					default: bot.postMessageToUser(user.display_name, ' skrev du fel kod? Eller är boten som är kodad fel? Inte vet jag', params);
 						break;
 
 					case sharedvars.randomNr.toString(): {
-						let userPresent = checkIfUserPresent(msg.user);
-						if (userPresent === false) {
+						if (!checkIfUserPresent(msg.user)) {
 							sharedvars.name = nameMassager(user.real_name);
 							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
 							pushUsertopresent(msg.user);
-							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysDate}`, params);
+							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysdate}`, params);
 							break;
 						} else {
 							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
@@ -151,8 +151,6 @@ bot.on('message', msg => {
 			}
 	}
 });
-
-
 
 function nameMassager(name) {
 	name = name.split('.');
@@ -175,14 +173,6 @@ function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function ResetCellCount(user) {
-	fs.writeFile('src/cellCount.txt', '0', function (err, data) {
-		if (err) console.log(err);
-		bot.postMessageToUser(user.display_name, 'Succesfully reset the cellcounter to 0', params);
-	});
-	checkCurrentPositionInExcell();
-}
-
 function changePositionFromLetter(letter) {
 	for (let i = 0; i < sharedvars.alphabet.length; i++) {
 		if (letter.toUpperCase() == sharedvars.alphabet[i]) {
@@ -193,10 +183,9 @@ function changePositionFromLetter(letter) {
 }
 
 function ResetDateKeyCount(user) {
-	fs.writeFile('src/datekey.txt', 'lol', function (err, data) {
-		if (err) console.log(err);
-		bot.postMessageToUser(user.display_name, 'Succesfully reset the datekey file', params);
-	});
+	sharedvars.todaysdate = 'node is cool';
+	db.update('todaysdate', 'I\'m glad you\'re spying on my code');
+	bot.postMessageToUser(user.display_name, 'Succesfully reset the datekey file', params);
 }
 
 function pushUsertopresent(userid) {
@@ -213,72 +202,50 @@ function checkIfUserPresent(userid) {
 }
 
 function newPresence(user) {
-	checkCurrentPositionInExcell();
-	let tempdate = new Date();
-	sharedvars.todaysDate = convertDateToString(tempdate);
-	fs.readFile('src/datekey.txt', function (err, buf) {
-		if (buf != undefined) {
-			let dateKey = buf.toString().split('@');
-			if (sharedvars.todaysDate !== dateKey[0]) {
-				if (newDay(user) == true) {
-					//If creating new day succeeded
-				}
-			} else {
-				return dateKey[1];
-			}
+	try {
+		let tempdate = convertDateToString(new Date());
+		console.log(tempdate);
+		console.log(sharedvars.todaysdate);
+		if (tempdate != sharedvars.todaysdate) {	
+			sharedvars.todaysdate = tempdate;
+			Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
+			sharedvars.position = parseInt(sharedvars.position) + 2;
+			sharedvars.randomNr = randomNumberGenerator();
+			bot.postMessageToUser(user, sharedvars.randomNr, params);
+			db.update('position', sharedvars.position.toString());
+			db.update('randomnr', sharedvars.randomNr.toString());
+			db.update('todaysdate', tempdate);
 		}
-		else {
-			logError('Couldn\'t read file: ' + sharedvars.todaysDate);
+		else if(tempdate == sharedvars.todaysdate)
+		{
+			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${sharedvars.randomNr}`, params);
 		}
-	});
+	} catch (error) {
+		console.log(errror);
+	}
 }
 
 function updateExcelCounter(data) {
-	db.update('cellcount', data);
+	db.update('position', data.toString());
 }
 
 function checkCurrentPositionInExcell() {
-	fs.readFile('src/cellCount.txt', function (err, buf) {
-		sharedvars.position = buf.toString();
-	});
+	db.read('position');
 }
 
 function reportCurrentCellInexcell(user) {
-	fs.readFile('src/cellCount.txt', function (err, buf) {
-		if (buf != undefined) {
-			let tempposition = buf.toString();
-			tempposition++;
-			tempposition++;
-			bot.postMessageToUser(user.display_name, `Current position in excell is ${sharedvars.alphabet[tempposition]}`, params);
-		}
-	});
+	console.log(sharedvars.position);
+	let tempposition = parseInt(sharedvars.position)+2;
+	console.log(sharedvars.alphabet[tempposition]);
+	bot.postMessageToUser(user.display_name, `Current position in excell is ${sharedvars.alphabet[tempposition]}`, params);
 }
 
 
-function writeFile(data) {
-	fs.writeFile('src/datekey.txt', data, function (err, data) {
-		if (err) console.log(err);
-		console.log('Successfully Written to File.');
-	});
-}
-
-function logError(data) {
-	fs.writeFile('src/errors.txt', data, function (err, data) {
-		if (err) console.log(err);
-	});
+function logError(error){
+	//TODO give message to pete 
 }
 
 
-function newDay(user) {
-	Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
-	sharedvars.position = parseInt(sharedvars.position) + 2;
-
-	updateExcelCounter(sharedvars.position);
-	sharedvars.randomNr = randomNumberGenerator();
-	bot.postMessageToUser(user, sharedvars.randomNr, params);
-	let data = `${sharedvars.todaysDate}@${sharedvars.randomNr.toString()}`;
-	writeFile(data);
-}
 
 function randomNumberGenerator() {
 	let number = Math.floor((Math.random() * 9999));
