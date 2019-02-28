@@ -7,13 +7,13 @@ const sheetsFunctions = require('./google/sheets')
 const sharedvars = require('./helpers/sharedvars');
 const db = require('./db/dbHelper');
 
-// ---- For the splash page ---- ||
-express.get('/', (req, res) => {
-	res.sendFile(__dirname + '/test.html');
-});
-const port = process.env.PORT;
-express.listen(port);
-// ---- For the splash page ---- ||
+// // ---- For the splash page ---- ||
+// express.get('/', (req, res) => {
+// 	res.sendFile(__dirname + '/test.html');
+// });
+// const port = process.env.PORT;
+// express.listen(port);
+// // ---- For the splash page ---- ||
 
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let presentUsers = [];
@@ -131,15 +131,18 @@ bot.on('message', msg => {
 						break;
 					}
 
-					default: bot.postMessageToUser(user.display_name, ' skrev du fel kod? Eller är boten som är kodad fel? Inte vet jag', params);
+					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
 
 					case sharedvars.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
 							sharedvars.name = nameMassager(user.real_name);
 							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
+							if(presentUsers.length == 0) {
+								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${sharedvars.todaysdate}, bra jobbat ${user.real_name}`, params);
+								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
+							} else { bot.postMessageToUser(user.display_name, `För den ${sharedvars.todaysdate} har du fått närvaro.`, params); }
 							pushUsertopresent(msg.user);
-							bot.postMessageToUser(user.display_name, `${user.real_name} har nu fått närvaro ${sharedvars.todaysdate}`, params);
 							break;
 						} else {
 							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
@@ -204,8 +207,6 @@ function checkIfUserPresent(userid) {
 function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
-		console.log(tempdate);
-		console.log(sharedvars.todaysdate);
 		if (tempdate != sharedvars.todaysdate) {	
 			sharedvars.todaysdate = tempdate;
 			Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
@@ -221,7 +222,7 @@ function newPresence(user) {
 			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${sharedvars.randomNr}`, params);
 		}
 	} catch (error) {
-		console.log(errror);
+		console.log(error);
 	}
 }
 
@@ -235,9 +236,7 @@ function checkCurrentPositionInExcell() {
 }
 
 function reportCurrentCellInexcell(user) {
-	console.log(sharedvars.position);
 	let tempposition = parseInt(sharedvars.position)+2;
-	console.log(sharedvars.alphabet[tempposition]);
 	bot.postMessageToUser(user.display_name, `Current position in excell is ${sharedvars.alphabet[tempposition]}`, params);
 }
 
