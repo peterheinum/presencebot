@@ -24,36 +24,48 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-sharedvars.alphabet = [
-	'this aint no ordinary thing',
-	'Please lord forgive me for my sins',
-	'A',
-	'B',
-	'C',
-	'D',
-	'E',
-	'F',
-	'G',
-	'H',
-	'I',
-	'J',
-	'K',
-	'L',
-	'M',
-	'N',
-	'O',
-	'P',
-	'Q',
-	'R',
-	'S',
-	'T',
-	'U',
-	'V',
-	'W',
-	'X',
-	'Y',
-	'Z'
-]
+sharedvars.alphabet = createAlphabet();
+
+
+
+function createAlphabet() {
+	const alphabet = [
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'F',
+		'G',
+		'H',
+		'I',
+		'J',
+		'K',
+		'L',
+		'M',
+		'N',
+		'O',
+		'P',
+		'Q',
+		'R',
+		'S',
+		'T',
+		'U',
+		'V',
+		'W',
+		'X',
+		'Y',
+		'Z'
+	];
+	
+  let brandNewAlphabet = [];
+  for (let i = 0; i < 26; i++) {
+    for (let j = 0; j < alphabet.length; j++) {
+      brandNewAlphabet.push(alphabet[i] + alphabet[j]);
+    }
+  }
+  return brandNewAlphabet;
+}
 
 // INIT MY BOT
 bot.on('start', function () {
@@ -150,7 +162,6 @@ bot.on('message', msg => {
 						}
 					}
 				}
-
 			}
 	}
 });
