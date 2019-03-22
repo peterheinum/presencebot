@@ -191,6 +191,10 @@ function checkIfMessageIsSplittable(msg) {
 	if(msg[1] != undefined && msg[0] === 'sheet')
 	{
 		return msg[1];
+	}	
+	if(msg[1] != undefined && msg[0] === 'insert')
+	{
+		return msg;
 	}	else {
 		return false;
 	}
