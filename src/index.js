@@ -96,8 +96,13 @@ bot.on('message', msg => {
 					}
 					if(sheetIdOrCellId.length > 1)
 					{
-						changeSheetId(sheetIdOrCellId);
-						bot.postMessageToUser(user.display_name, `new sheet is ${sharedvars.schoolSheet2}`, params);
+						if(sheetIdOrCellId.split('-')[1] != undefined) {
+							insertSheetId(sheetIdOrCellId.split('-')[1]);
+							bot.postMessageToUser(user.display_name, `inserted new is ${sharedvars.schoolSheet2}`, params);
+						} else {
+							changeSheetId(sheetIdOrCellId);
+							bot.postMessageToUser(user.display_name, `new sheet is ${sharedvars.schoolSheet2}`, params);
+						}
 					}
 				}
 
@@ -207,6 +212,11 @@ function changePositionFromLetter(letter) {
 function changeSheetId(sheetId) {
 	sharedvars.schoolSheet2 = sheetId;
 	db.update('sheet', sheetId);
+}
+
+function insertSheetId(sheetId) {
+	sharedvars.schoolSheet2 = sheetId;
+	db.insert({'sheet': sheetId})
 }
 
 function ResetDateKeyCount(user) {
