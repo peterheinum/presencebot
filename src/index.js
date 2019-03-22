@@ -26,8 +26,6 @@ const bot = new SlackBot({
 
 sharedvars.alphabet = createAlphabet();
 
-
-
 function createAlphabet() {
 	const alphabet = [
 		'A',
@@ -74,22 +72,14 @@ bot.on('start', function () {
 	 db.read('randomnr');
 	 db.read('position');
 	 db.read('todaysdate');
-	// db.insert({
-	// 	randomnr: sharedvars.randomNr.toString()
-	// })
-	// db.insert({
-	// 	todaysdate: convertDateToString(new Date())
-	// })
-	// db.insert({
-	// 	position: '6'
-	// })
+	 db.read('sheet');
 });
 
 bot.on('message', msg => {
 	switch (msg.type) {
 		case 'message':
 			if (msg.channel[0] === 'D' && msg.bot_id === undefined) {
-				msg.text = msg.text.toLowerCase();
+				
 				let users = bot.getUsers();
 				let user;
 				users._value.members.find(e => {
@@ -98,16 +88,24 @@ bot.on('message', msg => {
 					}
 				});
 
-				let newRange = checkIfMessageIsSplittable(msg.text);
-				if (newRange != false) {
-					let letter = changePositionFromLetter(newRange);
-					bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
+				let sheetIdOrCellId = checkIfMessageIsSplittable(msg.text);
+				if (sheetIdOrCellId != false) {
+					if(sheetIdOrCellId.length === 1) {
+						let letter = changePositionFromLetter(newRange);
+						bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
+					}
+					if(sheetIdOrCellId.length > 1)
+					{
+						changeSheetId(sheetIdOrCellId);
+						bot.postMessageToUser(user.display_name, `new sheet is ${sharedvars.schoolSheet2}`, params);
+					}
 				}
 
+				msg.text = msg.text.toLowerCase();
 				switch (msg.text) {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
-							sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
+							//sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
 							presentUsers = [];
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
@@ -142,6 +140,12 @@ bot.on('message', msg => {
 						reportCurrentCellInexcell(user);
 						break;
 					}
+					
+					case 'currentsheet': {
+						console.log(sharedvars.schoolSheet2);
+						bot.postMessageToUser(user.display_name, `Current sheet: ${sharedvars.schoolSheet2}`, params);
+					}
+					
 
 					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
@@ -176,9 +180,13 @@ function nameMassager(name) {
 
 function checkIfMessageIsSplittable(msg) {
 	msg = msg.split('-');
-	if (msg[1] != undefined && msg[0] == 'jumpcell') {
+	if (msg[1] != undefined && msg[0] === 'jumpcell') {
 		return msg[1].charAt(0);
-	} else {
+	} 
+	if(msg[1] != undefined && msg[0] === 'sheet')
+	{
+		return msg[1];
+	}	else {
 		return false;
 	}
 }
@@ -194,6 +202,11 @@ function changePositionFromLetter(letter) {
 			return i = i + 2;
 		}
 	}
+}
+
+function changeSheetId(sheetId) {
+	sharedvars.schoolSheet2 = sheetId;
+	db.update('sheet', sheetId);
 }
 
 function ResetDateKeyCount(user) {

@@ -50,6 +50,9 @@ const dbHelper = {
             case 'randomnr': sharedvars.randomNr = e[cell];
               console.log("randomnr is " + sharedvars.randomNr.toString());
               break;
+            case 'sheet': sharedvars.schoolSheet2 = e[cell];
+              console.log('sheet is ' + sharedvars.schoolSheet2);
+              break;
           }
         });
       })
