@@ -96,8 +96,8 @@ bot.on('message', msg => {
 					}
 					if(sheetIdOrCellId.length > 1)
 					{
-						if(sheetIdOrCellId.split('-')[1] != undefined) {
-							insertSheetId(sheetIdOrCellId.split('-')[1]);
+						if(sheetIdOrCellId.split(':')[1] != undefined) {
+							insertSheetId(sheetIdOrCellId.split(':')[1]);
 							bot.postMessageToUser(user.display_name, `inserted new is ${sharedvars.schoolSheet2}`, params);
 						} else {
 							changeSheetId(sheetIdOrCellId);
@@ -162,7 +162,7 @@ bot.on('message', msg => {
 							if(presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${sharedvars.todaysdate}, bra jobbat ${user.real_name}`, params);
 								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
-							} else { bot.postMessageToUser(user.display_name, `För den ${sharedvars.todaysdate} har du fått närvaro.`, params); }
+							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} Present [✓]`, params); }
 							pushUsertopresent(msg.user);
 							break;
 						} else {
@@ -184,7 +184,7 @@ function nameMassager(name) {
 }
 
 function checkIfMessageIsSplittable(msg) {
-	msg = msg.split('-');
+	msg = msg.split(':');
 	if (msg[1] != undefined && msg[0] === 'jumpcell') {
 		return msg[1].charAt(0);
 	} 
