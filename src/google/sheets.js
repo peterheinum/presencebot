@@ -45,6 +45,8 @@ const sheetsFunctions = {
         return;
       }
     });
+    store.registeredPeople.push(store.name);
+    console.log(store.registeredPeople);
   },
 
   readRegisteredUsers(auth) {
@@ -57,10 +59,9 @@ const sheetsFunctions = {
       const data = res.data.values;
       if (data.length) {
         let tempArr = [];
-        data.map(person => tempArr.push(person));
+        data.map(person => tempArr.push(person.toString()));
         store.registeredPeople = tempArr;
-        console.log('Store.registeredPeople ');
-        console.log(store.registeredPeople)
+        console.log('Store.registeredPeople has been populated');
       } else {
         console.log('No registered people data found. Sorry mister');
       }

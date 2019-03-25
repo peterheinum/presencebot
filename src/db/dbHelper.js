@@ -36,12 +36,10 @@ const dbHelper = {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
       let dbo = db.db(dbName);
-      console.log("trying to read");
       let cellmatcher = { [cell]: /.*.*/ };
       dbo.collection('externalvars').find(cellmatcher, (err, res) => {
         if (err) console.log(err);
         res.forEach(e => {
-          console.log(e['registered']);
           switch (cell) {
             case 'position': store.position = e[cell];
               console.log("read position: " + store.position.toString());
@@ -54,9 +52,6 @@ const dbHelper = {
               break;
             case 'sheet': store.schoolSheet = e[cell];
               console.log('read sheet: ' + store.schoolSheet);
-              break;
-            case 'registered': store.registeredPeople = e[cell];
-              console.log('read Registeredpeople: ' + e[cell]);
               break;
             case 'alphabetswitch': store.alphabetswitch = e[cell];
               console.log('read alphabetswitch: ' + e[cell]);
@@ -83,18 +78,13 @@ const dbHelper = {
   insertFirst: (data) => {
     MongoClient.connect(url, function (err, db) {
       let person = data;
-      data = {[data]: 'person', 'points': 0};
+      data = {[data]: 'person', 'points': 1};
       assert.equal(null, err);
       let dbo = db.db(dbName);
       console.log("inserting: " + data);
-      // dbo.collection('people').insertOne(data, (err, res) => {
-      //   if (err) console.log(err);
-      //   console.log("inserted");
-      // })
-      let dataObj = { $push: { 'registered': person }}
-      dbo.collection('externalvars').updateOne({'list': 'people'}, dataObj, (err, res) => {
+      dbo.collection('people').insertOne(data, (err, res) => {
         if (err) console.log(err);
-        console.log("inserted array too");
+        console.log(`${person} is now in the database welcome pal`);
       })
       db.close();
     });

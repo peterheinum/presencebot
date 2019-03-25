@@ -21,7 +21,8 @@ const db = require('./db/dbHelper');
 
 Start saving people when they register presence in the mongodb
 
-create instructions for setting up the presencebot once a new class starts
+create INIT FUNCTION for setting up the presencebot once a new class starts
+
 
 there will be alot of sheets ids and creating and setup
 but it will work.
@@ -116,15 +117,11 @@ function secondAlphabet() {
 bot.on('start', function () {
 	console.log('Good morning');
 	store.randomNr = randomNumberGenerator();
-	// db.read('randomnr');
-	// db.read('position');
-	// db.read('todaysdate');
-	// db.read('sheet');
-	store.name = 'you';
-	Auth.Authorize(sheets.storeRegisteredName);
+	db.read('randomnr');
+	db.read('position');
+	db.read('todaysdate');
+	db.read('sheet');
 	Auth.Authorize(sheets.readRegisteredUsers);
-	//db.insertFirst('test');
-	//db.updateCount('not me');
 });
 
 bot.on('message', msg => {
@@ -207,7 +204,7 @@ bot.on('message', msg => {
 					case store.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
 							store.name = nameMassager(user.real_name);
-							// db.updateCount(user.real_name);
+							updateUserCounter(nameMassager(user.real_name));
 							Auth.Authorize(sheets.appendName);
 							if(presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
@@ -224,6 +221,22 @@ bot.on('message', msg => {
 			}
 	}
 });
+
+function updateUserCounter(realName) {
+	let userHasRegistered = false;
+	store.registeredPeople.find(e => {
+		if (e == realName) {
+			userHasRegistered = true;
+		}
+	});
+	if(!userHasRegistered){
+		Auth.Authorize(sheets.storeRegisteredName);
+		db.insertFirst(realName);
+	}
+	if(userHasRegistered){
+		db.updateCount(realName);
+	}
+}
 
 function nameMassager(name) {
 	name = name.split('.');
@@ -283,6 +296,7 @@ function pushUsertopresent(userid) {
 	presentUsers.push(userid);
 }
 function checkIfUserPresent(userid) {
+	return false;
 	let temp = false;
 	presentUsers.forEach(USERID => {
 		if (USERID == userid) {
