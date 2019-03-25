@@ -116,13 +116,17 @@ function secondAlphabet() {
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
+	init();
+});
+
+function init(){
 	store.randomNr = randomNumberGenerator();
 	db.read('randomnr');
 	db.read('position');
 	db.read('todaysdate');
 	db.read('sheet');
 	Auth.Authorize(sheets.readRegisteredUsers);
-});
+}
 
 bot.on('message', msg => {
 	switch (msg.type) {
@@ -138,8 +142,8 @@ bot.on('message', msg => {
 
 				let sheetIdOrCellId = checkIfMessageIsSplittable(msg.text);
 				if (sheetIdOrCellId != false) {
-					if(sheetIdOrCellId.length === 1) {
-						let letter = changePositionFromLetter(newRange);
+					if(sheetIdOrCellId.length === 2) {
+						let letter = changePositionFromLetter(sheetIdOrCellIdju);
 						bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
 					}
 					if(sheetIdOrCellId.length > 1)
@@ -196,7 +200,6 @@ bot.on('message', msg => {
 					case 'currentsheet': {
 						bot.postMessageToUser(user.display_name, `Current sheet: ${store.schoolSheet}`, params);
 					}
-					
 
 					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
@@ -249,7 +252,7 @@ function nameMassager(name) {
 function checkIfMessageIsSplittable(msg) {
 	msg = msg.split(':');
 	if (msg[1] != undefined && msg[0] === 'jumpcell') {
-		return msg[1].charAt(0);
+		return msg[1];
 	} 
 	if(msg[1] != undefined && msg[0] === 'sheet')
 	{
@@ -296,7 +299,6 @@ function pushUsertopresent(userid) {
 	presentUsers.push(userid);
 }
 function checkIfUserPresent(userid) {
-	return false;
 	let temp = false;
 	presentUsers.forEach(USERID => {
 		if (USERID == userid) {
@@ -339,15 +341,9 @@ function checkCurrentPositionInExcell() {
 
 function reportCurrentCellInexcell(user) {
 	let tempposition = parseInt(store.position)+2;
-	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]}`, params);
+	console.log(store.alphabet[tempposition]);
+	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]} which is number ${tempposition}`, params);
 }
-
-
-function logError(error){
-	//TODO give message to pete 
-}
-
-
 
 function randomNumberGenerator() {
 	let number = Math.floor((Math.random() * 9999));
