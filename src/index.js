@@ -4,7 +4,7 @@ const SlackBot = require('slackbots');
 const fs = require('fs');
 const Auth = require('./google/auth');
 const sheetsFunctions = require('./google/sheets')
-const sharedvars = require('./helpers/sharedvars');
+const store = require('./helpers/sharedvars');
 const db = require('./db/dbHelper');
 
 // // ---- For the splash page ---- ||
@@ -13,7 +13,21 @@ const db = require('./db/dbHelper');
 // });
 // const port = process.env.PORT;
 // express.listen(port);
-// // ---- For the splash page ---- ||
+// // ---- For the splash page ---- ||'
+
+//TODO LIST
+
+/* alphabet switch, alphabet has to use the second function and third function once the first one is used. 
+
+Start saving people when they register presence in the mongodb
+
+create instructions for setting up the presencebot once a new class starts
+
+there will be alot of sheets ids and creating and setup
+but it will work.
+I pray.
+
+*/
 
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let presentUsers = [];
@@ -24,7 +38,39 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-sharedvars.alphabet = secondAlphabet();
+store.alphabet = secondAlphabet();
+
+function firstAlphabet() {
+	const alphabet = [
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'F',
+		'G',
+		'H',
+		'I',
+		'J',
+		'K',
+		'L',
+		'M',
+		'N',
+		'O',
+		'P',
+		'Q',
+		'R',
+		'S',
+		'T',
+		'U',
+		'V',
+		'W',
+		'X',
+		'Y',
+		'Z'
+	];
+	return alphabet;
+}
 
 function secondAlphabet() {
 	const alphabet = [
@@ -68,13 +114,15 @@ function secondAlphabet() {
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
-	sharedvars.randomNr = randomNumberGenerator();
-	db.read('randomnr');
-	db.read('position');
-	db.read('todaysdate');
-	db.read('sheet');
-	db.insertFirst('you');
-	db.updateCount('not me');
+	store.randomNr = randomNumberGenerator();
+	// db.read('randomnr');
+	// db.read('position');
+	// db.read('todaysdate');
+	// db.read('sheet');
+	store.name = 'pete';
+	Auth.Authorize(sheetsFunctions.storeRegisteredName);
+	//db.insertFirst('test');
+	//db.updateCount('not me');
 });
 
 bot.on('message', msg => {
@@ -93,16 +141,16 @@ bot.on('message', msg => {
 				if (sheetIdOrCellId != false) {
 					if(sheetIdOrCellId.length === 1) {
 						let letter = changePositionFromLetter(newRange);
-						bot.postMessageToUser(user.display_name, `new range is ${sharedvars.alphabet[letter]}`, params);
+						bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
 					}
 					if(sheetIdOrCellId.length > 1)
 					{
 						if(sheetIdOrCellId.split(':')[1] != undefined) {
 							insertSheetId(sheetIdOrCellId.split(':')[1]);
-							bot.postMessageToUser(user.display_name, `inserted new is ${sharedvars.schoolSheet2}`, params);
+							bot.postMessageToUser(user.display_name, `inserted new is ${store.schoolSheet}`, params);
 						} else {
 							changeSheetId(sheetIdOrCellId);
-							bot.postMessageToUser(user.display_name, `new sheet is ${sharedvars.schoolSheet2}`, params);
+							bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
 						}
 					}
 				}
@@ -114,17 +162,17 @@ bot.on('message', msg => {
 							presentUsers = [];
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
-							bot.postMessageToUser(msg.user, sharedvars.randomNr, params);
+							bot.postMessageToUser(msg.user, store.randomNr, params);
 						}
 						break;
 					}
 					case 'sick': {
 						let tempdate = new Date();
 						tempdate = convertDateToString(tempdate);
-						sharedvars.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
+						store.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
 						Auth.AuthorizeSheetsFunction(sheetsFunctions.appendSickPerson);
-						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${sharedvars.name}`, params);
-						bot.postMessageToUser('info', `${sharedvars.name} har nu anmält sig sjuk`, params);
+						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${store.name}`, params);
+						bot.postMessageToUser('info', `${store.name} har nu anmält sig sjuk`, params);
 					}
 						break;
 
@@ -147,20 +195,20 @@ bot.on('message', msg => {
 					}
 					
 					case 'currentsheet': {
-						bot.postMessageToUser(user.display_name, `Current sheet: ${sharedvars.schoolSheet2}`, params);
+						bot.postMessageToUser(user.display_name, `Current sheet: ${store.schoolSheet}`, params);
 					}
 					
 
 					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
 
-					case sharedvars.randomNr.toString(): {
+					case store.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
-							sharedvars.name = nameMassager(user.real_name);
+							store.name = nameMassager(user.real_name);
 							// db.updateCount(user.real_name);
 							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
 							if(presentUsers.length == 0) {
-								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${sharedvars.todaysdate}, bra jobbat ${user.real_name}`, params);
+								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
 								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
 							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
 							pushUsertopresent(msg.user);
@@ -205,8 +253,8 @@ function capitalizeFirstLetter(string) {
 }
 
 function changePositionFromLetter(letter) {
-	for (let i = 0; i < sharedvars.alphabet.length; i++) {
-		if (letter.toUpperCase() == sharedvars.alphabet[i]) {
+	for (let i = 0; i < store.alphabet.length; i++) {
+		if (letter.toUpperCase() == store.alphabet[i]) {
 			updateExcelCounter(i = i - 2);
 			return i = i + 2;
 		}
@@ -214,17 +262,17 @@ function changePositionFromLetter(letter) {
 }
 
 function changeSheetId(sheetId) {
-	sharedvars.schoolSheet2 = sheetId;
+	store.schoolSheet = sheetId;
 	db.update('sheet', sheetId);
 }
 
 function insertSheetId(sheetId) {
-	sharedvars.schoolSheet2 = sheetId;
+	store.schoolSheet = sheetId;
 	db.insert({'sheet': sheetId})
 }
 
 function ResetDateKeyCount(user) {
-	sharedvars.todaysdate = 'node is cool';
+	store.todaysdate = 'node is cool';
 	db.update('todaysdate', 'I\'m glad you\'re spying on my code');
 	bot.postMessageToUser(user.display_name, 'Succesfully reset the datekey file', params);
 }
@@ -245,19 +293,19 @@ function checkIfUserPresent(userid) {
 function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
-		if (tempdate != sharedvars.todaysdate) {	
-			sharedvars.todaysdate = tempdate;
+		if (tempdate != store.todaysdate) {	
+			store.todaysdate = tempdate;
 			Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
-			sharedvars.position = parseInt(sharedvars.position) + 2;
-			sharedvars.randomNr = randomNumberGenerator();
-			bot.postMessageToUser(user, sharedvars.randomNr, params);
-			db.update('position', sharedvars.position.toString());
-			db.update('randomnr', sharedvars.randomNr.toString());
+			store.position = parseInt(store.position) + 2;
+			store.randomNr = randomNumberGenerator();
+			bot.postMessageToUser(user, store.randomNr, params);
+			db.update('position', store.position.toString());
+			db.update('randomnr', store.randomNr.toString());
 			db.update('todaysdate', tempdate);
 		}
-		else if(tempdate == sharedvars.todaysdate)
+		else if(tempdate == store.todaysdate)
 		{
-			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${sharedvars.randomNr}`, params);
+			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${store.randomNr}`, params);
 		}
 	} catch (error) {
 		console.log(error);
@@ -265,7 +313,7 @@ function newPresence(user) {
 }
 
 function updateExcelCounter(data) {
-	sharedvars.position = data.toString();
+	store.position = data.toString();
 	db.update('position', data.toString());
 }
 
@@ -274,8 +322,8 @@ function checkCurrentPositionInExcell() {
 }
 
 function reportCurrentCellInexcell(user) {
-	let tempposition = parseInt(sharedvars.position)+2;
-	bot.postMessageToUser(user.display_name, `Current position in excell is ${sharedvars.alphabet[tempposition]}`, params);
+	let tempposition = parseInt(store.position)+2;
+	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]}`, params);
 }
 
 

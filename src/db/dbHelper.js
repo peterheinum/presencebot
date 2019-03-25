@@ -1,4 +1,4 @@
-const sharedvars = require('../helpers/sharedvars');
+const store = require('../helpers/sharedvars');
 const MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
@@ -36,25 +36,30 @@ const dbHelper = {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
       let dbo = db.db(dbName);
+      console.log("trying to read");
       let cellmatcher = { [cell]: /.*.*/ };
       dbo.collection('externalvars').find(cellmatcher, (err, res) => {
         if (err) console.log(err);
         res.forEach(e => {
+          console.log(e['registered']);
           switch (cell) {
-            case 'position': sharedvars.position = e[cell];
-              console.log("position is " + sharedvars.position.toString());
+            case 'position': store.position = e[cell];
+              console.log("read position: " + store.position.toString());
               break;
-            case 'todaysdate': sharedvars.todaysdate = e[cell];
-              console.log("todaysdate is " + sharedvars.todaysdate);
+            case 'todaysdate': store.todaysdate = e[cell];
+              console.log("read todaysdate: " + store.todaysdate);
               break;
-            case 'randomnr': sharedvars.randomNr = e[cell];
-              console.log("randomnr is " + sharedvars.randomNr.toString());
+            case 'randomnr': store.randomNr = e[cell];
+              console.log("read randomNr: " + store.randomNr.toString());
               break;
-            case 'sheet': sharedvars.schoolSheet2 = e[cell];
-              console.log('sheet is ' + sharedvars.schoolSheet2);
+            case 'sheet': store.schoolSheet2 = e[cell];
+              console.log('read sheet: ' + store.schoolSheet2);
               break;
-            case 'alphabetSwitch': sharedvars.alphabetSwitch = e[cell];
-              console.log('Current alphabet is ' + e[cell]);
+            case 'registered': store.registeredPeople = e[cell];
+              console.log('read Registeredpeople: ' + e[cell]);
+              break;
+            case 'alphabetswitch': store.alphabetswitch = e[cell];
+              console.log('read alphabetswitch: ' + e[cell]);
               break;
           }
         });
@@ -62,6 +67,7 @@ const dbHelper = {
       db.close();
     });
   },
+
   updateCount: (cell) => {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
@@ -73,19 +79,32 @@ const dbHelper = {
       db.close();
     });
   },
+
   insertFirst: (data) => {
     MongoClient.connect(url, function (err, db) {
-      data = {[data]: 'person', 'points': 0}
+      let person = data;
+      data = {[data]: 'person', 'points': 0};
       assert.equal(null, err);
       let dbo = db.db(dbName);
       console.log("inserting: " + data);
-      dbo.collection('people').insertOne(data, (err, res) => {
+      // dbo.collection('people').insertOne(data, (err, res) => {
+      //   if (err) console.log(err);
+      //   console.log("inserted");
+      // })
+      let dataObj = { $push: { 'registered': person }}
+      dbo.collection('externalvars').updateOne({'list': 'people'}, dataObj, (err, res) => {
         if (err) console.log(err);
-        console.log("inserted");
+        console.log("inserted array too");
       })
       db.close();
     });
   },
+  UpdateOrInsertFirst(data){
+    store.registeredPeople.forEach(e => {
+      console.log(e);
+    });
+  }
+
 
 }
 module.exports = dbHelper;

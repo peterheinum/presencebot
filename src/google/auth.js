@@ -10,7 +10,7 @@ const TOKEN_PATH = 'src/token.json';
 const credentials = `{"installed":{"client_id":"${process.env.ClientID}","project_id":"${process.env.ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${process.env.ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
 
 const Auth = {
-  authorize(credentials, callback) {
+  internalAuth(credentials, callback) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     if (client_id == undefined) client_id = process.env.ClientID;
     const oAuth2Client = new google.auth.OAuth2(
@@ -23,8 +23,8 @@ const Auth = {
     });
   },
 
-  AuthorizeSheetsFunction(funct) {
-    this.authorize(JSON.parse(credentials), funct);
+  Authorize(funct) {
+    this.internalAuth(JSON.parse(credentials), funct);
   },
 
   getNewToken(oAuth2Client, callback) {
