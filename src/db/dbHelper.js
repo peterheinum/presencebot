@@ -53,6 +53,9 @@ const dbHelper = {
             case 'sheet': sharedvars.schoolSheet2 = e[cell];
               console.log('sheet is ' + sharedvars.schoolSheet2);
               break;
+            case 'alphabetSwitch': sharedvars.alphabetSwitch = e[cell];
+              console.log('Current alphabet is ' + e[cell]); 
+              break;
           }
         });
       })

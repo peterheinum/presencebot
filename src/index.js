@@ -24,9 +24,9 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-sharedvars.alphabet = createAlphabet();
+sharedvars.alphabet = secondAlphabet();
 
-function createAlphabet() {
+function secondAlphabet() {
 	const alphabet = [
 		'A',
 		'B',
@@ -79,7 +79,6 @@ bot.on('message', msg => {
 	switch (msg.type) {
 		case 'message':
 			if (msg.channel[0] === 'D' && msg.bot_id === undefined) {
-				
 				let users = bot.getUsers();
 				let user;
 				users._value.members.find(e => {
@@ -110,7 +109,6 @@ bot.on('message', msg => {
 				switch (msg.text) {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
-							//sharedvars.schoolSheet2 = process.env.SCHOOLSHEET;
 							presentUsers = [];
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
@@ -147,7 +145,6 @@ bot.on('message', msg => {
 					}
 					
 					case 'currentsheet': {
-						console.log(sharedvars.schoolSheet2);
 						bot.postMessageToUser(user.display_name, `Current sheet: ${sharedvars.schoolSheet2}`, params);
 					}
 					
@@ -162,7 +159,7 @@ bot.on('message', msg => {
 							if(presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${sharedvars.todaysdate}, bra jobbat ${user.real_name}`, params);
 								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
-							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} Present [✓]`, params); }
+							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
 							pushUsertopresent(msg.user);
 							break;
 						} else {
