@@ -54,7 +54,7 @@ const dbHelper = {
               console.log('sheet is ' + sharedvars.schoolSheet2);
               break;
             case 'alphabetSwitch': sharedvars.alphabetSwitch = e[cell];
-              console.log('Current alphabet is ' + e[cell]); 
+              console.log('Current alphabet is ' + e[cell]);
               break;
           }
         });
@@ -62,5 +62,30 @@ const dbHelper = {
       db.close();
     });
   },
+  updateCount: (cell) => {
+    MongoClient.connect(url, function (err, db) {
+      assert.equal(null, err);
+      let dbo = db.db(dbName);
+      dbo.collection('people').findOneAndUpdate({[cell]: "person"}, {$inc: {'points': 1}}, (err, res) => {
+        if (err) console.log(err);
+        console.log(`updated: ${cell}`);
+      })
+      db.close();
+    });
+  },
+  insertFirst: (data) => {
+    MongoClient.connect(url, function (err, db) {
+      data = {[data]: 'person', 'points': 0}
+      assert.equal(null, err);
+      let dbo = db.db(dbName);
+      console.log("inserting: " + data);
+      dbo.collection('people').insertOne(data, (err, res) => {
+        if (err) console.log(err);
+        console.log("inserted");
+      })
+      db.close();
+    });
+  },
+
 }
 module.exports = dbHelper;

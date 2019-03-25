@@ -69,10 +69,12 @@ function secondAlphabet() {
 bot.on('start', function () {
 	console.log('Good morning');
 	sharedvars.randomNr = randomNumberGenerator();
-	 db.read('randomnr');
-	 db.read('position');
-	 db.read('todaysdate');
-	 db.read('sheet');
+	db.read('randomnr');
+	db.read('position');
+	db.read('todaysdate');
+	db.read('sheet');
+	db.insertFirst('you');
+	db.updateCount('not me');
 });
 
 bot.on('message', msg => {
@@ -155,6 +157,7 @@ bot.on('message', msg => {
 					case sharedvars.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
 							sharedvars.name = nameMassager(user.real_name);
+							// db.updateCount(user.real_name);
 							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
 							if(presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${sharedvars.todaysdate}, bra jobbat ${user.real_name}`, params);

@@ -10,6 +10,5 @@ const sharedvars = {
   alphabet: [],
   alphabetSwitch: 0,
 }
+
 module.export = sharedvars;
-
-
