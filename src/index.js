@@ -103,14 +103,14 @@ function secondAlphabet() {
 		'Y',
 		'Z'
 	];
-	
-  let brandNewAlphabet = [];
-  for (let i = 0; i < 26; i++) {
-    for (let j = 0; j < alphabet.length; j++) {
-      brandNewAlphabet.push(alphabet[i] + alphabet[j]);
-    }
-  }
-  return brandNewAlphabet;
+
+	let brandNewAlphabet = [];
+	for (let i = 0; i < 26; i++) {
+		for (let j = 0; j < alphabet.length; j++) {
+			brandNewAlphabet.push(alphabet[i] + alphabet[j]);
+		}
+	}
+	return brandNewAlphabet;
 }
 
 // INIT MY BOT
@@ -119,7 +119,7 @@ bot.on('start', function () {
 	init();
 });
 
-function init(){
+function init() {
 	store.randomNr = randomNumberGenerator();
 	db.read('randomnr');
 	db.read('position');
@@ -142,18 +142,19 @@ bot.on('message', msg => {
 
 				let sheetIdOrCellId = checkIfMessageIsSplittable(msg.text);
 				if (sheetIdOrCellId != false) {
-					if(sheetIdOrCellId.length === 2) {
-						let letter = changePositionFromLetter(sheetIdOrCellIdju);
-						bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
-					}
-					if(sheetIdOrCellId.length > 1)
-					{
-						if(sheetIdOrCellId.split(':')[1] != undefined) {
-							insertSheetId(sheetIdOrCellId.split(':')[1]);
-							bot.postMessageToUser(user.display_name, `inserted new is ${store.schoolSheet}`, params);
-						} else {
-							changeSheetId(sheetIdOrCellId);
-							bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
+					if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+						if (sheetIdOrCellId.length === 2) {
+							let letter = changePositionFromLetter(sheetIdOrCellIdju);
+							bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
+						}
+						if (sheetIdOrCellId.length > 1) {
+							if (sheetIdOrCellId.split(':')[1] != undefined) {
+								insertSheetId(sheetIdOrCellId.split(':')[1]);
+								bot.postMessageToUser(user.display_name, `inserted new is ${store.schoolSheet}`, params);
+							} else {
+								changeSheetId(sheetIdOrCellId);
+								bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
+							}
 						}
 					}
 				}
@@ -196,7 +197,7 @@ bot.on('message', msg => {
 						reportCurrentCellInexcell(user);
 						break;
 					}
-					
+
 					case 'currentsheet': {
 						bot.postMessageToUser(user.display_name, `Current sheet: ${store.schoolSheet}`, params);
 					}
@@ -209,7 +210,7 @@ bot.on('message', msg => {
 							store.name = nameMassager(user.real_name);
 							updateUserCounter(nameMassager(user.real_name));
 							Auth.Authorize(sheets.appendName);
-							if(presentUsers.length == 0) {
+							if (presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
 								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
 							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
@@ -232,11 +233,11 @@ function updateUserCounter(realName) {
 			userHasRegistered = true;
 		}
 	});
-	if(!userHasRegistered){
+	if (!userHasRegistered) {
 		Auth.Authorize(sheets.storeRegisteredName);
 		db.insertFirst(realName);
 	}
-	if(userHasRegistered){
+	if (userHasRegistered) {
 		db.updateCount(realName);
 	}
 }
@@ -251,18 +252,13 @@ function nameMassager(name) {
 
 function checkIfMessageIsSplittable(msg) {
 	msg = msg.split(':');
-	if (msg[1] != undefined && msg[0] === 'jumpcell') {
-		return msg[1];
-	} 
-	if(msg[1] != undefined && msg[0] === 'sheet')
-	{
-		return msg[1];
-	}	
-	if(msg[1] != undefined && msg[0] === 'insert')
-	{
-		return msg;
-	}	else {
-		return false;
+	if(msg[1] != undefined) {
+		switch (msg[0]){
+			case 'jumpcell': return msg[1];
+			case 'insert': return msg;
+			case 'sheet': return msg[1];
+			default: return false;
+		}
 	}
 }
 
@@ -286,7 +282,7 @@ function changeSheetId(sheetId) {
 
 function insertSheetId(sheetId) {
 	store.schoolSheet = sheetId;
-	db.insert({'sheet': sheetId})
+	db.insert({ 'sheet': sheetId })
 }
 
 function ResetDateKeyCount(user) {
@@ -311,7 +307,7 @@ function checkIfUserPresent(userid) {
 function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
-		if (tempdate != store.todaysdate) {	
+		if (tempdate != store.todaysdate) {
 			store.todaysdate = tempdate;
 			Auth.Authorize(sheets.writeDateOnTop);
 			store.position = parseInt(store.position) + 2;
@@ -321,8 +317,7 @@ function newPresence(user) {
 			db.update('randomnr', store.randomNr.toString());
 			db.update('todaysdate', tempdate);
 		}
-		else if(tempdate == store.todaysdate)
-		{
+		else if (tempdate == store.todaysdate) {
 			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${store.randomNr}`, params);
 		}
 	} catch (error) {
@@ -340,7 +335,7 @@ function checkCurrentPositionInExcell() {
 }
 
 function reportCurrentCellInexcell(user) {
-	let tempposition = parseInt(store.position)+2;
+	let tempposition = parseInt(store.position) + 2;
 	console.log(store.alphabet[tempposition]);
 	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]} which is number ${tempposition}`, params);
 }
