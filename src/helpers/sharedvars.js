@@ -5,11 +5,12 @@ const sharedvars = {
   position: "", 
   todaysdate: "",
   randomNr: "",
-  schoolSheet2: "",
+  schoolSheet: "",
   sickSheet: "",
+  dbSheet:"",
   alphabet: [],
   alphabetswitch: 0,
-  peopleRegister: [],
+  registeredPeople: [],
 }
 
 module.export = sharedvars;

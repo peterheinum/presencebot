@@ -52,8 +52,8 @@ const dbHelper = {
             case 'randomnr': store.randomNr = e[cell];
               console.log("read randomNr: " + store.randomNr.toString());
               break;
-            case 'sheet': store.schoolSheet2 = e[cell];
-              console.log('read sheet: ' + store.schoolSheet2);
+            case 'sheet': store.schoolSheet = e[cell];
+              console.log('read sheet: ' + store.schoolSheet);
               break;
             case 'registered': store.registeredPeople = e[cell];
               console.log('read Registeredpeople: ' + e[cell]);

@@ -3,7 +3,7 @@ const express = require('express')();
 const SlackBot = require('slackbots');
 const fs = require('fs');
 const Auth = require('./google/auth');
-const sheetsFunctions = require('./google/sheets')
+const sheets = require('./google/sheets')
 const store = require('./helpers/sharedvars');
 const db = require('./db/dbHelper');
 
@@ -39,6 +39,7 @@ const bot = new SlackBot({
 });
 
 store.alphabet = secondAlphabet();
+store.dbSheet = '1q_68-0ctovY23_htvoQr0WDp-HIQlI2fpysNx4dEADA';
 
 function firstAlphabet() {
 	const alphabet = [
@@ -119,8 +120,9 @@ bot.on('start', function () {
 	// db.read('position');
 	// db.read('todaysdate');
 	// db.read('sheet');
-	store.name = 'pete';
-	Auth.Authorize(sheetsFunctions.storeRegisteredName);
+	store.name = 'you';
+	Auth.Authorize(sheets.storeRegisteredName);
+	Auth.Authorize(sheets.readRegisteredUsers);
 	//db.insertFirst('test');
 	//db.updateCount('not me');
 });
@@ -170,7 +172,7 @@ bot.on('message', msg => {
 						let tempdate = new Date();
 						tempdate = convertDateToString(tempdate);
 						store.name = `SICK ${nameMassager(user.real_name)} ${tempdate}`;
-						Auth.AuthorizeSheetsFunction(sheetsFunctions.appendSickPerson);
+						Auth.Authorize(sheets.appendSickPerson);
 						bot.postMessageToUser(user.display_name, `Du har nu blivit sjukanmäld ${store.name}`, params);
 						bot.postMessageToUser('info', `${store.name} har nu anmält sig sjuk`, params);
 					}
@@ -206,7 +208,7 @@ bot.on('message', msg => {
 						if (!checkIfUserPresent(msg.user)) {
 							store.name = nameMassager(user.real_name);
 							// db.updateCount(user.real_name);
-							Auth.AuthorizeSheetsFunction(sheetsFunctions.appendName);
+							Auth.Authorize(sheets.appendName);
 							if(presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
 								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
@@ -295,7 +297,7 @@ function newPresence(user) {
 		let tempdate = convertDateToString(new Date());
 		if (tempdate != store.todaysdate) {	
 			store.todaysdate = tempdate;
-			Auth.AuthorizeSheetsFunction(sheetsFunctions.writeDateOnTop);
+			Auth.Authorize(sheets.writeDateOnTop);
 			store.position = parseInt(store.position) + 2;
 			store.randomNr = randomNumberGenerator();
 			bot.postMessageToUser(user, store.randomNr, params);
