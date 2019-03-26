@@ -193,7 +193,7 @@ bot.on('message', msg => {
 							Auth.Authorize(sheets.appendName);
 							if (presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
-								bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
+								//bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
 							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
 							pushUsertopresent(msg.user);
 							break;
@@ -284,9 +284,9 @@ function newPresence(user) {
 			store.position = parseInt(store.position) + 2;
 			store.randomNr = randomNumberGenerator();
 			bot.postMessageToUser(user, store.randomNr, params);
-			db.update('position', store.position.toString());
+			//db.update('position', store.position.toString());
 			db.update('randomnr', store.randomNr.toString());
-			db.update('todaysdate', tempdate);
+			//db.update('todaysdate', tempdate);
 		}
 		else if (tempdate == store.todaysdate) {
 			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${store.randomNr}`, params);
