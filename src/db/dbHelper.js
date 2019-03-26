@@ -14,8 +14,8 @@ const dbHelper = {
       dbo.collection('externalvars').insertOne(data, (err, res) => {
         if (err) console.log(err);
         console.log("inserted");
+        db.close();
       })
-      db.close();
     });
   },
   update: (cell, data) => {
@@ -24,11 +24,11 @@ const dbHelper = {
       let dbo = db.db(dbName);
       let cellmatcher = { [cell]: /.*.*/ };
       let dataObj = { [cell]: data };
-      dbo.collection('externalvars').updateOne(cellmatcher, dataObj, {upsert: true, save: false}, (err, res) => {
+      dbo.collection('externalvars').updateOne(cellmatcher, dataObj, { upsert: true, save: false }, (err, res) => {
         if (err) console.log(err);
         console.log(`updated: ${cell}: ${data}`);
+        db.close();
       })
-      db.close();
     });
   },
 
@@ -53,13 +53,14 @@ const dbHelper = {
             case 'sheet': store.schoolSheet = e[cell];
               console.log('read sheet: ' + store.schoolSheet);
               break;
-            case 'alphabetswitch': store.alphabetswitch = e[cell];
-              console.log('read alphabetswitch: ' + e[cell]);
+            case 'currentalphabet': store.currentalphabet = e[cell];
+              console.log('read currentalphabet: ' + e[cell]);
               break;
           }
         });
+        db.close();
       })
-      db.close();
+
     });
   },
 
@@ -67,11 +68,55 @@ const dbHelper = {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
       let dbo = db.db(dbName);
-      dbo.collection('people').updateOne({[cell]: "person"}, {$inc: {'points': 1}}, {upsert: true, save: false}, (err, res) => {
+      dbo.collection('people').updateOne({ [cell]: "person" }, { $inc: { 'points': 1 } }, { upsert: true, save: false }, (err, res) => {
         if (err) console.log(err);
         console.log(`updated: ${cell}`);
+        db.close();
       })
-      db.close();
+    });
+  },
+
+  dropIndexes: (newSheet) => {
+    MongoClient.connect(url, function (err, db) {
+      assert.equal(null, err);
+      let dbo = db.db(dbName);
+      console.log("Trying to drop table externalvars");
+      dbo.dropCollection('externalvars', (err, res) => {
+        console.log("Trying to create table externalvars");
+        dbo.createCollection('externalvars', (err, res) => {
+          if (res) {
+            dbo.collection('externalvars').updateOne({ 'positon': '0' }, { 'position': '0' }, { upsert: true, save: false }, (err, res) => {
+              if (err) console.log(err);
+              console.log(`updated: position 0`);
+            })
+            dbo.collection('externalvars').updateOne({ 'randomnr': '0000' }, { 'randomnr': '0000' }, { upsert: true, save: false }, (err, res) => {
+              if (err) console.log(err);
+              console.log(`updated: randomnr 0000`);
+            })
+            dbo.collection('externalvars').updateOne({ 'todaysdate': '0000' }, { 'todaysdate': '0000' }, { upsert: true, save: false }, (err, res) => {
+              if (err) console.log(err);
+              console.log(`updated: todaysdate 00000`);
+            })
+            dbo.collection('externalvars').updateOne({ 'sheet': newSheet }, { 'sheet': newSheet }, { upsert: true, save: false }, (err, res) => {
+              if (err) console.log(err);
+              console.log(`updated: sheet 0000`);
+            })
+            dbo.collection('externalvars').updateOne({ 'currentalphabet': '0' }, { 'currentalphabet': '0' }, { upsert: true, save: false }, (err, res) => {
+              if (err) console.log(err);
+              console.log(`updated: sheet 0000`);
+            })
+            
+          }
+        });
+        console.log("dropping table people");
+        dbo.dropCollection('people', (err, res) => {
+          console.log("Trying to create table externalvars");
+          dbo.createCollection('people', (err, res) => {
+            console.log("People table succesfully created"); 
+            db.close();
+          })
+        });
+      });
     });
   },
 }

@@ -112,6 +112,8 @@ function secondAlphabet() {
 	return brandNewAlphabet;
 }
 
+
+
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
@@ -121,9 +123,10 @@ bot.on('start', function () {
 function init() {
 	store.randomNr = randomNumberGenerator();
 	db.read('randomnr');
-	db.read('position');
 	db.read('todaysdate');
 	db.read('sheet');
+	db.read('position');
+	db.read('currentalphabet');
 }
 
 bot.on('message', msg => {
@@ -135,12 +138,12 @@ bot.on('message', msg => {
 				users._value.members.find(e => {
 					if (e.id === msg.user) {
 						user = e.profile;
+						checkIfMessageIsOperation(msg, user);
 					}
 				});
 
-				checkIfMessageIsOperation(msg.text, user);
-			
-				msg.text = msg.text.toLowerCase();
+				
+				//msg.text = msg.text.toLowerCase();
 				switch (msg.text) {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
@@ -152,6 +155,7 @@ bot.on('message', msg => {
 						}
 						break;
 					}
+
 					case 'sick': {
 						let tempdate = new Date();
 						tempdate = convertDateToString(tempdate);
@@ -164,8 +168,8 @@ bot.on('message', msg => {
 
 					case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
 						ResetDateKeyCount(user);
-					}
 						break;
+					}						
 
 					case 'help': {
 						if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
@@ -182,10 +186,8 @@ bot.on('message', msg => {
 
 					case 'currentsheet': {
 						bot.postMessageToUser(user.display_name, `Current sheet: ${store.schoolSheet}`, params);
-					}
-
-					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
+					}
 
 					case store.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
@@ -203,6 +205,9 @@ bot.on('message', msg => {
 							break;
 						}
 					}
+
+					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
+						break;
 				}
 			}
 	}
@@ -218,24 +223,37 @@ function nameMassager(name) {
 }
 
 function checkIfMessageIsOperation(msg, user) {
-	msg = msg.split(':');
-	if (msg[1] != undefined) {
-		switch (msg[0]) {
-			case 'jumpcell':
-				let letter = changePositionFromLetter(msg[1]);
-				bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
-				break;
-			case 'sheet':
-				changeSheetId(msg[1]);
-				bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
-				break;
-			default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg[0]}`);
-				break;
-		}
+	if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+		if(msg.text.split(':')[1] != undefined) {
+			msg.text = msg.text.split(':');
+		} else return;
+		if (msg.text[1] != undefined) {
+			console.log("i ended up here");
+			console.log(msg.text[1]);	
+			switch (msg.text[0]) {
+				case 'jumpcell':
+					let letter = changePositionFromLetter(msg.text[1]);
+					bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
+					return;
+				case 'sheet':
+					changeSheetId(msg.text[1]);
+					bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
+					return;
+				case 'yolo':
+					console.log("yolo");
+					resetBot(msg.text[1]);
+					return;
+				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
+					return;
+			}
+		} else return;
 	}
 }
 
-
+function resetBot(sheetId){
+	db.dropIndexes(sheetId);
+	setTimeout(init, 5000);
+}
 
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);

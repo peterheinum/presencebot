@@ -8,7 +8,7 @@ const sharedvars = {
   schoolSheet: "",
   sickSheet: "",
   alphabet: [],
-  alphabetswitch: 0,
+  currentalphabet: 0,
   registeredPeople: [],
 }
 
