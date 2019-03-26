@@ -40,7 +40,6 @@ const bot = new SlackBot({
 });
 
 store.alphabet = secondAlphabet();
-store.dbSheet = '1q_68-0ctovY23_htvoQr0WDp-HIQlI2fpysNx4dEADA';
 
 function firstAlphabet() {
 	const alphabet = [
@@ -125,7 +124,6 @@ function init() {
 	db.read('position');
 	db.read('todaysdate');
 	db.read('sheet');
-	Auth.Authorize(sheets.readRegisteredUsers);
 }
 
 bot.on('message', msg => {

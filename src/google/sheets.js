@@ -49,24 +49,6 @@ const sheetsFunctions = {
     console.log(store.registeredPeople);
   },
 
-  readRegisteredUsers(auth) {
-    const sheets = google.sheets({ version: 'v4', auth });
-    sheets.spreadsheets.values.get({
-      spreadsheetId: '1q_68-0ctovY23_htvoQr0WDp-HIQlI2fpysNx4dEADA',
-      range: 'dbsheet!A1:A50',
-    }, (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
-      const data = res.data.values;
-      if (data.length) {
-        let tempArr = [];
-        data.map(person => tempArr.push(person.toString()));
-        store.registeredPeople = tempArr;
-        console.log('Store.registeredPeople has been populated');
-      } else {
-        console.log('No registered people data found. Sorry mister');
-      }
-    });
-  },
 
   appendName(authClient) {
     let rangePosition = store.alphabet[store.position];
