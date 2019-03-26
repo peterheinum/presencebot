@@ -25,30 +25,6 @@ const sheetsFunctions = {
     });
   },
 
-  storeRegisteredName(authClient) { //TODO !IMPORTANT Change the spreadsheet id to store var
-    const sheets = google.sheets({ version: 'v4', authClient });
-    let request = {
-      spreadsheetId: store.dbSheet,
-      range: `dbsheet!A1:A1`,
-      valueInputOption: 'RAW',
-      insertDataOption: 'OVERWRITE',
-      resource: {
-        'values': [
-          [store.name],
-        ]
-      },
-      auth: authClient,
-    };
-    sheets.spreadsheets.values.append(request, function (err, response) {
-      if (err) {
-        //console.error(err);
-        return;
-      }
-    });
-    store.registeredPeople.push(store.name);
-    console.log(store.registeredPeople);
-  },
-
 
   appendName(authClient) {
     let rangePosition = store.alphabet[store.position];
