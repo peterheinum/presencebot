@@ -140,25 +140,8 @@ bot.on('message', msg => {
 					}
 				});
 
-				let sheetIdOrCellId = checkIfMessageIsSplittable(msg.text);
-				if (sheetIdOrCellId != false) {
-					if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-						if (sheetIdOrCellId.length === 2) {
-							let letter = changePositionFromLetter(sheetIdOrCellIdju);
-							bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
-						}
-						if (sheetIdOrCellId.length > 1) {
-							if (sheetIdOrCellId.split(':')[1] != undefined) {
-								insertSheetId(sheetIdOrCellId.split(':')[1]);
-								bot.postMessageToUser(user.display_name, `inserted new is ${store.schoolSheet}`, params);
-							} else {
-								changeSheetId(sheetIdOrCellId);
-								bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
-							}
-						}
-					}
-				}
-
+				checkIfMessageIsOperation(msg.text, user);
+			
 				msg.text = msg.text.toLowerCase();
 				switch (msg.text) {
 					case 'närvaro': {
@@ -250,17 +233,25 @@ function nameMassager(name) {
 	return name.toString();
 }
 
-function checkIfMessageIsSplittable(msg) {
+function checkIfMessageIsOperation(msg, user) {
 	msg = msg.split(':');
-	if(msg[1] != undefined) {
-		switch (msg[0]){
-			case 'jumpcell': return msg[1];
-			case 'insert': return msg;
-			case 'sheet': return msg[1];
-			default: return false;
+	if (msg[1] != undefined) {
+		switch (msg[0]) {
+			case 'jumpcell':
+				let letter = changePositionFromLetter(msg[1]);
+				bot.postMessageToUser(user.display_name, `new range is ${store.alphabet[letter]}`, params);
+				break;
+			case 'sheet':
+				changeSheetId(msg[1]);
+				bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
+				break;
+			default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg[0]}`);
+				break;
 		}
 	}
 }
+
+
 
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
@@ -280,10 +271,7 @@ function changeSheetId(sheetId) {
 	db.update('sheet', sheetId);
 }
 
-function insertSheetId(sheetId) {
-	store.schoolSheet = sheetId;
-	db.insert({ 'sheet': sheetId })
-}
+
 
 function ResetDateKeyCount(user) {
 	store.todaysdate = 'node is cool';

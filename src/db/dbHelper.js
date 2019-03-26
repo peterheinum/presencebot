@@ -24,7 +24,7 @@ const dbHelper = {
       let dbo = db.db(dbName);
       let cellmatcher = { [cell]: /.*.*/ };
       let dataObj = { [cell]: data };
-      dbo.collection('externalvars').updateOne(cellmatcher, dataObj, (err, res) => {
+      dbo.collection('externalvars').updateOne(cellmatcher, dataObj, {upsert: true, save: false}, (err, res) => {
         if (err) console.log(err);
         console.log(`updated: ${cell}: ${data}`);
       })
