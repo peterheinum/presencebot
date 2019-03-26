@@ -191,7 +191,7 @@ bot.on('message', msg => {
 					case store.randomNr.toString(): {
 						if (!checkIfUserPresent(msg.user)) {
 							store.name = nameMassager(user.real_name);
-							updateUserCounter(nameMassager(user.real_name));
+							db.updateCount(nameMassager(user.real_name));
 							Auth.Authorize(sheets.appendName);
 							if (presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
@@ -209,21 +209,6 @@ bot.on('message', msg => {
 	}
 });
 
-function updateUserCounter(realName) {
-	let userHasRegistered = false;
-	store.registeredPeople.find(e => {
-		if (e == realName) {
-			userHasRegistered = true;
-		}
-	});
-	if (!userHasRegistered) {
-		Auth.Authorize(sheets.storeRegisteredName);
-		db.insertFirst(realName);
-	}
-	if (userHasRegistered) {
-		db.updateCount(realName);
-	}
-}
 
 function nameMassager(name) {
 	name = name.split('.');

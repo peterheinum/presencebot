@@ -67,34 +67,12 @@ const dbHelper = {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
       let dbo = db.db(dbName);
-      dbo.collection('people').findOneAndUpdate({[cell]: "person"}, {$inc: {'points': 1}}, (err, res) => {
+      dbo.collection('people').updateOne({[cell]: "person"}, {$inc: {'points': 1}}, {upsert: true, save: false}, (err, res) => {
         if (err) console.log(err);
         console.log(`updated: ${cell}`);
       })
       db.close();
     });
   },
-
-  insertFirst: (data) => {
-    MongoClient.connect(url, function (err, db) {
-      let person = data;
-      data = {[data]: 'person', 'points': 1};
-      assert.equal(null, err);
-      let dbo = db.db(dbName);
-      console.log("inserting: " + data);
-      dbo.collection('people').insertOne(data, (err, res) => {
-        if (err) console.log(err);
-        console.log(`${person} is now in the database welcome pal`);
-      })
-      db.close();
-    });
-  },
-  UpdateOrInsertFirst(data){
-    store.registeredPeople.forEach(e => {
-      console.log(e);
-    });
-  }
-
-
 }
 module.exports = dbHelper;
