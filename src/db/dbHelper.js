@@ -78,7 +78,7 @@ const dbHelper = {
     });
   },
 
-  dropIndexes: (newSheet) => {
+  dropAndRestartCollections: (newSheet) => {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
       let dbo = db.db(dbName);
@@ -97,13 +97,13 @@ const dbHelper = {
             })
             dbo.collection('externalvars').updateOne({ 'todaysdate': '0000' }, { 'todaysdate': '0000' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: todaysdate 00000`);
+              console.log(`updated: todaysdate 0000`);
             })
             dbo.collection('externalvars').updateOne({ 'sheet': newSheet }, { 'sheet': newSheet }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: sheet 0000`);
+              console.log(`updated: sheet ${newSheet}`);
             })
-            dbo.collection('externalvars').updateOne({ 'currentalphabet': '0' }, { 'currentalphabet': '0' }, { upsert: true, save: false }, (err, res) => {
+            dbo.collection('externalvars').updateOne({ 'currentalphabet': 'first' }, { 'currentalphabet': 'first' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
               console.log(`updated: sheet 0000`);
             })

@@ -9,7 +9,6 @@ const sharedvars = {
   sickSheet: "",
   alphabet: [],
   currentalphabet: 0,
-  registeredPeople: [],
 }
 
 module.export = sharedvars;

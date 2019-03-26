@@ -5,6 +5,7 @@ const fs = require('fs');
 const Auth = require('./google/auth');
 const sheets = require('./google/sheets')
 const store = require('./helpers/sharedvars');
+const helpers = require('./helpers/helperFunctions');
 const db = require('./db/dbHelper');
 
 // // ---- For the splash page ---- ||
@@ -39,80 +40,6 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-store.alphabet = secondAlphabet();
-
-function firstAlphabet() {
-	const alphabet = [
-		'A',
-		'B',
-		'C',
-		'D',
-		'E',
-		'F',
-		'G',
-		'H',
-		'I',
-		'J',
-		'K',
-		'L',
-		'M',
-		'N',
-		'O',
-		'P',
-		'Q',
-		'R',
-		'S',
-		'T',
-		'U',
-		'V',
-		'W',
-		'X',
-		'Y',
-		'Z'
-	];
-	return alphabet;
-}
-
-function secondAlphabet() {
-	const alphabet = [
-		'A',
-		'B',
-		'C',
-		'D',
-		'E',
-		'F',
-		'G',
-		'H',
-		'I',
-		'J',
-		'K',
-		'L',
-		'M',
-		'N',
-		'O',
-		'P',
-		'Q',
-		'R',
-		'S',
-		'T',
-		'U',
-		'V',
-		'W',
-		'X',
-		'Y',
-		'Z'
-	];
-
-	let brandNewAlphabet = [];
-	for (let i = 0; i < 26; i++) {
-		for (let j = 0; j < alphabet.length; j++) {
-			brandNewAlphabet.push(alphabet[i] + alphabet[j]);
-		}
-	}
-	return brandNewAlphabet;
-}
-
-
 
 // INIT MY BOT
 bot.on('start', function () {
@@ -143,7 +70,7 @@ bot.on('message', msg => {
 				});
 
 				
-				//msg.text = msg.text.toLowerCase();
+				//msg.text = msg.text.toLowerCase(); //this stopped working how the heck
 				switch (msg.text) {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
@@ -249,11 +176,14 @@ function checkIfMessageIsOperation(msg, user) {
 }
 
 function resetBot(sheetId, user){
-	db.dropIndexes(sheetId);
+	db.dropAndRestartCollections(sheetId);
 	bot.postMessageToUser(user.display_name, 'It\'s been a pleasure', params);
 	setTimeout(init, 5000);
-	setTimeout(bot.postMessageToUser, 5000, user.display_name, 'Succesfully reset my inner core. Ready for re:use', params);
+	setTimeout(sendIntroMessage, 5000, user);
+}
 
+function sendIntroMessage(user){
+	bot.postMessageToUser(user.display_name, 'Succesfully reset my inner core. Ready for re:use', params)
 }
 
 function capitalizeFirstLetter(string) {
