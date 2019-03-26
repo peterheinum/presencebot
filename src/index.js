@@ -205,7 +205,6 @@ bot.on('message', msg => {
 							break;
 						}
 					}
-
 					default: bot.postMessageToUser(user.display_name, ' I\'m confused, what do you want to achieve?', params);
 						break;
 				}
@@ -239,9 +238,8 @@ function checkIfMessageIsOperation(msg, user) {
 					changeSheetId(msg.text[1]);
 					bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
 					return;
-				case 'yolo':
-					console.log("yolo");
-					resetBot(msg.text[1]);
+				case 'peterismygod':
+					resetBot(msg.text[1], user);
 					return;
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
@@ -250,9 +248,12 @@ function checkIfMessageIsOperation(msg, user) {
 	}
 }
 
-function resetBot(sheetId){
+function resetBot(sheetId, user){
 	db.dropIndexes(sheetId);
+	bot.postMessageToUser(user.display_name, 'It\'s been a pleasure', params);
 	setTimeout(init, 5000);
+	setTimeout(bot.postMessageToUser, 5000, user.display_name, 'Succesfully reset my inner core. Ready for re:use', params);
+
 }
 
 function capitalizeFirstLetter(string) {
@@ -272,8 +273,6 @@ function changeSheetId(sheetId) {
 	store.schoolSheet = sheetId;
 	db.update('sheet', sheetId);
 }
-
-
 
 function ResetDateKeyCount(user) {
 	store.todaysdate = 'node is cool';
@@ -322,6 +321,7 @@ function updateExcelCounter(data) {
 
 function checkCurrentPositionInExcell() {
 	db.read('position');
+
 }
 
 function reportCurrentCellInexcell(user) {
