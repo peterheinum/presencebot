@@ -145,6 +145,7 @@ bot.on('message', msg => {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
 							presentUsers = [];
+							db.updateCount('total');
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
 							bot.postMessageToUser(msg.user, store.randomNr, params);
