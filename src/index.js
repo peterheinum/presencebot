@@ -45,7 +45,15 @@ const bot = new SlackBot({
 bot.on('start', function () {
 	console.log('Good morning');
 	init();
+	//setTimeout(helpers.pickAlphabet, 3000, "6", "second");
+	store.alphabet = firstAlphabet();
 });
+function firstAlphabet() {
+	const alphabet = [
+		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+	];
+	return alphabet;
+}
 
 function init() {
 	store.randomNr = randomNumberGenerator();
@@ -54,6 +62,8 @@ function init() {
 	db.read('sheet');
 	db.read('position');
 	db.read('currentalphabet');
+	//db.update('position', '672');
+	// db.update('currentalphabet', 'first');
 }
 
 bot.on('message', msg => {
@@ -154,8 +164,6 @@ function checkIfMessageIsOperation(msg, user) {
 			msg.text = msg.text.split(':');
 		} else return;
 		if (msg.text[1] != undefined) {
-			console.log("i ended up here");
-			console.log(msg.text[1]);	
 			switch (msg.text[0]) {
 				case 'jumpcell':
 					let letter = changePositionFromLetter(msg.text[1]);
@@ -227,9 +235,10 @@ function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
 		if (tempdate != store.todaysdate) {
+			store.position = parseInt(store.position) + 2;
+			helpers.pickAlphabet(store.position);
 			store.todaysdate = tempdate;
 			Auth.Authorize(sheets.writeDateOnTop);
-			store.position = parseInt(store.position) + 2;
 			store.randomNr = randomNumberGenerator();
 			bot.postMessageToUser(user, store.randomNr, params);
 			db.update('position', store.position.toString());
@@ -251,7 +260,6 @@ function updateExcelCounter(data) {
 
 function checkCurrentPositionInExcell() {
 	db.read('position');
-
 }
 
 function reportCurrentCellInexcell(user) {

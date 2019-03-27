@@ -8,7 +8,7 @@ const sharedvars = {
   schoolSheet: "",
   sickSheet: "",
   alphabet: [],
-  currentalphabet: 0,
+  currentAlphabet: 0,
 }
 
 module.export = sharedvars;

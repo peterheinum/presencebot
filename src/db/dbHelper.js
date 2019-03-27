@@ -1,7 +1,7 @@
 const store = require('../helpers/sharedvars');
 const MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
-const helpers = require('../helpers/helperFunctions');
+
 
 const dbName = process.env.MONGO_DB_NAME;
 const url = process.env.MONGODB_URI;
@@ -54,9 +54,8 @@ const dbHelper = {
             case 'sheet': store.schoolSheet = e[cell];
               console.log('read sheet: ' + store.schoolSheet);
               break;
-            case 'currentalphabet': store.currentalphabet = e[cell];
+            case 'currentalphabet': store.currentAlphabet = e[cell];
               console.log('read currentalphabet: ' + e[cell]);
-              helpers.pickAlphabet(store.position, store.currentalphabet);
               break;
           }
         });
