@@ -62,7 +62,7 @@ function init() {
 	db.read('sheet');
 	db.read('position');
 	db.read('currentalphabet');
-	//db.update('position', '672');
+	// db.update('position', '0');
 	// db.update('currentalphabet', 'first');
 }
 
@@ -82,7 +82,8 @@ bot.on('message', msg => {
 				
 				//msg.text = msg.text.toLowerCase(); //this stopped working how the heck
 				switch (msg.text) {
-					case 'närvaro': {
+					case 'n': {
+					// case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
 							presentUsers = [];
 							db.updateCount('total');
@@ -102,8 +103,8 @@ bot.on('message', msg => {
 						bot.postMessageToUser('info', `${store.name} har nu anmält sig sjuk`, params);
 					}
 						break;
-
-					case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+					case 'r': {
+					//case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
 						ResetDateKeyCount(user);
 						break;
 					}						
