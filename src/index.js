@@ -158,7 +158,7 @@ function checkIfMessageIsOperation(msg, user) {
 					changeSheetId(msg.text[1]);
 					bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
 					return;
-				case 'peterismygod':
+				case 'startover':
 					resetBot(msg.text[1], user);
 					return;
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
