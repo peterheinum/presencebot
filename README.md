@@ -4,7 +4,7 @@ A slackbot made to ease Axels workload with taking presence.
 
 ## Getting Started
 
-Type in 'peterisagod:{googlesheetsid}' to get the bot started and configged with the id you choose
+Type in 'startover:{googlesheetsid}' to get the bot started and configged with the id you choose
 
 ### Prerequisites
 ```
