@@ -88,25 +88,24 @@ const dbHelper = {
           if (res) {
             dbo.collection('externalvars').updateOne({ 'positon': '0' }, { 'position': '0' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: position 0`);
+              if(res) console.log(`updated: position 0`);
             })
             dbo.collection('externalvars').updateOne({ 'randomnr': '0000' }, { 'randomnr': '0000' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: randomnr 0000`);
+              if(res) console.log(`updated: randomnr 0000`);
             })
             dbo.collection('externalvars').updateOne({ 'todaysdate': '0000' }, { 'todaysdate': '0000' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: todaysdate 0000`);
+              if(res) console.log(`updated: todaysdate 0000`);
             })
             dbo.collection('externalvars').updateOne({ 'sheet': newSheet }, { 'sheet': newSheet }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: sheet ${newSheet}`);
+              if(res) console.log(`updated: sheet ${newSheet}`);
             })
             dbo.collection('externalvars').updateOne({ 'currentalphabet': 'first' }, { 'currentalphabet': 'first' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              console.log(`updated: sheet 0000`);
+              if(res) console.log(`updated: sheet 0000`);
             })
-            
           }
         });
         console.log("dropping table people");

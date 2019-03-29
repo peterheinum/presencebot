@@ -16,20 +16,6 @@ const db = require('./db/dbHelper');
 // express.listen(port);
 // // ---- For the splash page ---- ||'
 
-//TODO LIST
-
-/* alphabet switch, alphabet has to use the second function and third function once the first one is used. 
-
-Start saving people when they register presence in the mongodb
-
-create INIT FUNCTION for setting up the presencebot once a new class starts
-
-
-there will be alot of sheets ids and creating and setup
-but it will work.
-I pray.
-
-*/
 
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let presentUsers = [];
@@ -82,8 +68,7 @@ bot.on('message', msg => {
 				
 				//msg.text = msg.text.toLowerCase(); //this stopped working how the heck
 				switch (msg.text) {
-					case 'n': {
-					// case 'närvaro': {
+					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
 							presentUsers = [];
 							db.updateCount('total');
@@ -103,8 +88,7 @@ bot.on('message', msg => {
 						bot.postMessageToUser('info', `${store.name} har nu anmält sig sjuk`, params);
 					}
 						break;
-					case 'r': {
-					//case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
+					case 'datereset': if (msg.user === 'UCLA6T2AY' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
 						ResetDateKeyCount(user);
 						break;
 					}						
@@ -222,14 +206,9 @@ function ResetDateKeyCount(user) {
 function pushUsertopresent(userid) {
 	presentUsers.push(userid);
 }
+
 function checkIfUserPresent(userid) {
-	let temp = false;
-	presentUsers.forEach(USERID => {
-		if (USERID == userid) {
-			temp = true;
-		}
-	});
-	return temp;
+	return presentUsers.includes(userid); 
 }
 
 function newPresence(user) {

@@ -3,8 +3,6 @@ const db = require('../db/dbHelper');
 
 const helperFunctions = {
   pickAlphabet: () => {
-    console.log(store.currentAlphabet + " -- currentalphabet");
-    console.log(store.position + " -- position")
     if(store.currentAlphabet === 'first') {      
       if (store.position > 25) {
         store.alphabet = secondAlphabet();
