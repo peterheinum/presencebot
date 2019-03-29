@@ -1,10 +1,10 @@
-# Project Title
+# Presencebot
 
-One Paragraph of project description goes here
+A slackbot made to ease Axels workload with taking presence. 
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Type in 'peterisagod:{googlesheetsid}' to get the bot started and configged with the id you choose
 
 ### Prerequisites
 
