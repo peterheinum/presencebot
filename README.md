@@ -1,18 +1,15 @@
 # Presencebot
 
-A slackbot made to ease Axels workload with taking presence. 
+A slackbot made to take presence. 
 
 ## Getting Started
 
 Type in 'startover:{googlesheetsid}' to get the bot started and configged with the id you choose
 
 ### Prerequisites
-```
-Slack
-```
-```
-Presencebot existing in your workspace
-```
+* Slack
+* Presencebot existing in your workspace
+
 ## [How To Use](#usage)
 
 ## Available commands
@@ -48,7 +45,8 @@ Feel free to email me for suggestions at Peter.heinum@gmail.com
 ## Acknowledgments
 
 * Recomended not to browse the sourcecode unless you are not afraid of headaches.
-* inspirations
+* Jumpcell command is limited.
+
+* Sources of inspiration: 
 * Nothing better to do
 * Waste of paper
-* Jumpcell command is limited.
