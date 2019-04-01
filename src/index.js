@@ -1,5 +1,4 @@
 require('dotenv').config();
-const express = require('express')();
 const SlackBot = require('slackbots');
 const fs = require('fs');
 const Auth = require('./google/auth');
@@ -8,13 +7,6 @@ const store = require('./helpers/sharedvars');
 const helpers = require('./helpers/helperFunctions');
 const db = require('./db/dbHelper');
 
-// // ---- For the splash page ---- ||
-// express.get('/', (req, res) => {
-// 	res.sendFile(__dirname + '/test.html');
-// });
-// const port = process.env.PORT;
-// express.listen(port);
-// // ---- For the splash page ---- ||'
 
 
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
