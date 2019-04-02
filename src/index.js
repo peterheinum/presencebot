@@ -52,16 +52,6 @@ bot.on('message', msg => {
 				
 				//msg.text = msg.text.toLowerCase(); //this stopped working how the heck
 				switch (msg.text) {
-					case 'närvaro': {
-						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
-							presentUsers = [];
-							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
-							newPresence(user.display_name);
-							bot.postMessageToUser(msg.user, store.randomNr, params);
-						}
-						break;
-					}
-
 					case 'sick': {
 						let tempdate = new Date();
 						tempdate = convertDateToString(tempdate);
@@ -126,9 +116,17 @@ function nameMassager(name) {
 	return name.toString();
 }
 
+
+const startPresenceAndMsgUser = (user) => {
+	presentUsers = [];
+	bot.postMessageToUser(user.display_name, `Good morning ${user.real_name} \n Class initiated: ${store.dbSwitch}`, params);
+	newPresence(user.display_name);
+	bot.postMessageToUser(user.display_name, store.randomNr, params);
+}
+
 function checkIfMessageIsOperation(msg, user) {
 	if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') {
-		if(msg.text.split(':')[1] != undefined) {
+		if (msg.text.split(':')[1] != undefined) {
 			msg.text = msg.text.split(':');
 		} else return;
 		if (msg.text[1] != undefined) {
@@ -146,7 +144,9 @@ function checkIfMessageIsOperation(msg, user) {
 					resetBot(msg.text[2], user, msg.text[1]);
 					return;
 				case 'närvaro': {
-
+					store.dbSwitch = msg.text[1];
+					helpers.init();
+					setTimeout(startPresenceAndMsgUser, 3000, user);				
 				}
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
@@ -154,6 +154,8 @@ function checkIfMessageIsOperation(msg, user) {
 		} else return;
 	}
 }
+
+
 
 function resetBot(sheetId, user, classNr){
 	store.dbSwitch = classNr;
@@ -214,11 +216,11 @@ function newPresence(user) {
 			db.update('todaysdate', tempdate);
 			db.updateCount('total');
 		}
-		else if (tempdate == store.todaysdate) {
+		else if (tempdate === store.todaysdate) {
 			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${store.randomNr}`, params);
 		}
 	} catch (error) {
-		console.log(error);
+		bot.postMessageToUser(user, `Fuck fuck fuck fuck ${error}`, params);
 	}
 }
 
