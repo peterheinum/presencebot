@@ -22,10 +22,11 @@ const bot = new SlackBot({
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
-	init();
-	//setTimeout(helpers.pickAlphabet, 3000, "6", "second");
+	helpers.init();
+	store.dbSwitch = "1";
 	store.alphabet = firstAlphabet();
 });
+
 function firstAlphabet() {
 	const alphabet = [
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
@@ -33,16 +34,7 @@ function firstAlphabet() {
 	return alphabet;
 }
 
-function init() {
-	store.randomNr = randomNumberGenerator();
-	db.read('randomnr');
-	db.read('todaysdate');
-	db.read('sheet');
-	db.read('position');
-	db.read('currentalphabet');
-	// db.update('position', '0');
-	// db.update('currentalphabet', 'first');
-}
+
 
 bot.on('message', msg => {
 	switch (msg.type) {
@@ -63,7 +55,6 @@ bot.on('message', msg => {
 					case 'närvaro': {
 						if (user.display_name === 'peter.heinum' || msg.user === 'U4WU831BJ' || msg.user === 'U2TFNKWBT') { //Peters och Axels  
 							presentUsers = [];
-							db.updateCount('total');
 							bot.postMessageToUser(msg.user, `Good morning ${user.real_name}`, params);
 							newPresence(user.display_name);
 							bot.postMessageToUser(msg.user, store.randomNr, params);
@@ -141,6 +132,7 @@ function checkIfMessageIsOperation(msg, user) {
 			msg.text = msg.text.split(':');
 		} else return;
 		if (msg.text[1] != undefined) {
+			msg.text[0] = msg.text[0].toLowerCase();
 			switch (msg.text[0]) {
 				case 'jumpcell':
 					let letter = changePositionFromLetter(msg.text[1]);
@@ -151,8 +143,11 @@ function checkIfMessageIsOperation(msg, user) {
 					bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
 					return;
 				case 'startover':
-					resetBot(msg.text[1], user);
+					resetBot(msg.text[2], user, msg.text[1]);
 					return;
+				case 'närvaro': {
+
+				}
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
 			}
@@ -160,10 +155,11 @@ function checkIfMessageIsOperation(msg, user) {
 	}
 }
 
-function resetBot(sheetId, user){
+function resetBot(sheetId, user, classNr){
+	store.dbSwitch = classNr;
 	db.dropAndRestartCollections(sheetId);
 	bot.postMessageToUser(user.display_name, 'It\'s been a pleasure', params);
-	setTimeout(init, 5000);
+	setTimeout(helpers.init, 5000);
 	setTimeout(sendIntroMessage, 5000, user);
 }
 
@@ -208,14 +204,15 @@ function newPresence(user) {
 		let tempdate = convertDateToString(new Date());
 		if (tempdate != store.todaysdate) {
 			store.position = parseInt(store.position) + 2;
-			helpers.pickAlphabet(store.position);
+			helpers.pickAlphabet();
 			store.todaysdate = tempdate;
 			Auth.Authorize(sheets.writeDateOnTop);
-			store.randomNr = randomNumberGenerator();
+			store.randomNr = helpers.randomNumberGenerator();
 			bot.postMessageToUser(user, store.randomNr, params);
 			db.update('position', store.position.toString());
 			db.update('randomnr', store.randomNr.toString());
 			db.update('todaysdate', tempdate);
+			db.updateCount('total');
 		}
 		else if (tempdate == store.todaysdate) {
 			bot.postMessageToUser(user, ` You have already started the presencecheck today, but here's the code: ${store.randomNr}`, params);
@@ -240,11 +237,7 @@ function reportCurrentCellInexcell(user) {
 	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]} which is number ${tempposition}`, params);
 }
 
-function randomNumberGenerator() {
-	let number = Math.floor((Math.random() * 9999));
-	if (number < 1000) number += 1000;
-	return number;
-}
+
 
 function convertDateToString(date) {
 	let newDate = '';

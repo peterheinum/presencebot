@@ -18,6 +18,7 @@
     "googleapis": "^27.0.0",
     "mathjs": "^5.4.0",
     "mongodb": "^2.2.36",
+    "pug": "^2.0.3",
     "slackbots": "^1.2.0"
   },
   "devDependencies": {

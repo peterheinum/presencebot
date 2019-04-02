@@ -37,8 +37,24 @@ const helperFunctions = {
       console.log("miracles happen");
       store.alphabet = thirdAlphabet();
     }
-
   },
+
+  randomNumberGenerator: () => {
+    let number = Math.floor((Math.random() * 9999));
+    if (number < 1000) number += 1000;
+    return number;
+  },
+
+  init: () => {
+    db.read('randomnr');
+    db.read('todaysdate');
+    db.read('sheet');
+    db.read('position');
+    db.read('currentalphabet');
+  }
+
+
+
 }
 
 function firstAlphabet() {
