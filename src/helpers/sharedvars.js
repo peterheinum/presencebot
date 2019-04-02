@@ -9,7 +9,7 @@ const sharedvars = {
   sickSheet: "",
   alphabet: [],
   currentAlphabet: "",
-  dbSwitch: "0",
+  dbSwitch: "",
 }
 
 module.export = sharedvars;

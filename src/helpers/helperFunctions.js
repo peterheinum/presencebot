@@ -52,9 +52,6 @@ const helperFunctions = {
     db.read('position');
     db.read('currentalphabet');
   }
-
-
-
 }
 
 function firstAlphabet() {

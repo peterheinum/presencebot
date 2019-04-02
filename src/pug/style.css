@@ -17,7 +17,7 @@ body {
   width: 100vw;
   background-color: rgb(151, 102, 151);
   display:flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   font-size: 18px;
   color: #ffff;
@@ -28,3 +28,15 @@ body {
   width: 70px;
 }
 
+.half {
+  width: 50vw;
+}
+
+.main{
+  display:flex;
+}
+
+.right{
+  border-left: 1px black solid;
+  height: 94vh;
+}

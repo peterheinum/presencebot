@@ -3,7 +3,7 @@ const store = require('../helpers/sharedvars');
 const helpers = require('../helpers/helperFunctions');
 const db = require('../db/dbHelper');
 const express = require('express')();
-const pug = require('pug');
+const handlebars = require('handlebars');
 
 const compiledAdminView = pug.compileFile('src/pug/adminView.pug');
 
