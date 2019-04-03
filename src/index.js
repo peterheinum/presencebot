@@ -152,13 +152,15 @@ function checkIfMessageIsOperation(msg, user) {
 				case 'närvaro': {
 					store.dbSwitch = msg.text[1];
 					helpers.init();
-					setTimeout(startPresenceAndMsgUser, 3000, user);				
+					setTimeout(startPresenceAndMsgUser, 3000, user);	
+					break;			
 				}
 				case 'people': {
 					store.dbSwitch = msg.text[1];
 					helpers.init();
 					setTimeout(db.getAllPeople, 3000);
 					setTimeout(logger, 4000, user);
+					break;
 				}
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
@@ -176,7 +178,7 @@ function logger(user) {
 		const desiredNumberOfDecimals = 2;
 		const floatRes = res.toPrecision(String(res).length + desiredNumberOfDecimals);
 		const percent = floatRes.toString().split('0.')[1] != undefined ? floatRes.toString().split('0.')[1].slice(0,2) : "";
-		bot.postMessageToUser(user.display_name, `${e.name}: ${e.points} | Frånvaro: ${percent}%`, params);
+		if(e.name !== 'total') bot.postMessageToUser(user.display_name, `${e.name}: ${percent}%`, params);
 	});
 }
 
