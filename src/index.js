@@ -23,8 +23,14 @@ const bot = new SlackBot({
 bot.on('start', function () {
 	console.log('Good morning');
 	helpers.init();
-	store.dbSwitch = "1";
+	store.dbSwitch = "000000000000000000000000000000";
 	store.alphabet = firstAlphabet();
+	// db.updateCount('total');
+	// db.updateCount('hallo');
+	// db.updateCount('eeyo');
+	// db.updateCount('oooo');
+	// db.updateCount('lllll');
+	// db.updateCount('eeeee');
 });
 
 function firstAlphabet() {
@@ -148,11 +154,23 @@ function checkIfMessageIsOperation(msg, user) {
 					helpers.init();
 					setTimeout(startPresenceAndMsgUser, 3000, user);				
 				}
+				case 'people': {
+					store.dbSwitch = msg.text[1];
+					helpers.init();
+					setTimeout(db.getAllPeople, 3000);
+					setTimeout(logger, 4000, user);
+				}
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
 			}
 		} else return;
 	}
+}
+
+function logger(user){
+	store.people.forEach(e => {
+		bot.postMessageToUser(user.display_name, e, params);
+	});
 }
 
 
@@ -238,8 +256,6 @@ function reportCurrentCellInexcell(user) {
 	console.log(store.alphabet[tempposition]);
 	bot.postMessageToUser(user.display_name, `Current position in excell is ${store.alphabet[tempposition]} which is number ${tempposition}`, params);
 }
-
-
 
 function convertDateToString(date) {
 	let newDate = '';

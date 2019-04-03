@@ -17,16 +17,14 @@ const init = () => {
 init();
 
 
-
+function getData() {
+	if(store.position) helpers.pickAlphabet();
+	return { position: store.position, randomNr: store.randomNr, excellPosition: store.alphabet[store.position] }
+}
 
 // ---- For the splash page ---- ||
 express.get('/', (req, res) => {
 	if(store.position) helpers.pickAlphabet();
-	res.send(pug.renderFile('src/pug/adminView.pug', {
-		randomNr: store.randomNr,
-		excellPos: store.alphabet[store.position],
-		sheetId: store.schoolSheet,
-	}))
 });
 
 express.get('/admin', (req, res) => {

@@ -10,6 +10,7 @@ const sharedvars = {
   alphabet: [],
   currentAlphabet: "",
   dbSwitch: "",
+  people: [],
 }
 
 module.export = sharedvars;

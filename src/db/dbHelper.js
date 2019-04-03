@@ -121,5 +121,32 @@ const dbHelper = {
       });
     });
   },
+
+
+  getAllPeople: () => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db(dbName);
+      dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
+        if (err) throw err;
+        const usersCountArr = result.reduce((acc, val) => {
+          acc.push({name: Object.keys(val)[1], point: val.points});
+          return acc;
+        }, []);
+        console.log(usersCountArr);
+        db.close();
+        store.people = usersCountArr;
+      });
+    });
+  }
+
+
+
+
+
+
+
+
+
 }
 module.exports = dbHelper;
