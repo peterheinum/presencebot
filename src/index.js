@@ -229,7 +229,7 @@ function checkIfUserPresent(userid) {
 function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
-		if (tempdate != store.todaysdate) {
+		if (tempdate != "") {// store.todaysdate) { This will allow several class presence checks every day
 			store.position = parseInt(store.position) + 2;
 			helpers.pickAlphabet();
 			store.todaysdate = tempdate;
