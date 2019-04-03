@@ -167,11 +167,16 @@ function checkIfMessageIsOperation(msg, user) {
 	}
 }
 
-function logger(user){
+function logger(user) {
 	const total = store.people.find(e => e.name === 'total');
-
 	store.people.forEach(e => {
-		bot.postMessageToUser(user.display_name, `${e.name}: ${e.points} | Frånvaro: ${e.point/total}%`, params);
+		const x = e.points;
+		const y = total.points;
+		const res = x / y;
+		const desiredNumberOfDecimals = 2;
+		const floatRes = res.toPrecision(String(res).length + desiredNumberOfDecimals);
+		const percent = floatRes.toString().split('0.')[1] != undefined ? floatRes.toString().split('0.')[1].slice(0,2) : "";
+		bot.postMessageToUser(user.display_name, `${e.name}: ${e.points} | Frånvaro: ${percent}%`, params);
 	});
 }
 
