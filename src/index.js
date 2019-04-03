@@ -168,8 +168,10 @@ function checkIfMessageIsOperation(msg, user) {
 }
 
 function logger(user){
+	const total = store.people.find(e => e.name === 'total');
+
 	store.people.forEach(e => {
-		bot.postMessageToUser(user.display_name, e, params);
+		bot.postMessageToUser(user.display_name, `${e.name}: ${e.points} | Frånvaro: ${e.point/total}%`, params);
 	});
 }
 

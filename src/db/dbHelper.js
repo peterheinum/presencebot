@@ -130,10 +130,9 @@ const dbHelper = {
       dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
         if (err) throw err;
         const usersCountArr = result.reduce((acc, val) => {
-          acc.push({name: Object.keys(val)[1], point: val.points});
+          acc.push({name: Object.keys(val)[1], points: val.points});
           return acc;
         }, []);
-        console.log(usersCountArr);
         db.close();
         store.people = usersCountArr;
       });
