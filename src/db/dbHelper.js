@@ -129,12 +129,15 @@ const dbHelper = {
       var dbo = db.db(dbName);
       dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
         if (err) throw err;
-        const usersCountArr = result.reduce((acc, val) => {
+        const people = result.reduce((acc, val) => {
           acc.push({name: Object.keys(val)[1], points: val.points});
           return acc;
         }, []);
         db.close();
-        store.people = usersCountArr;
+
+        const alphabeticlySortedPeople = people.sort((a, b) => a.name[0].localeCompare(b.name[0]));
+
+        store.people = alphabeticlySortedPeople;
       });
     });
   }

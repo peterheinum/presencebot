@@ -16,6 +16,8 @@ const init = () => {
 }
 init();
 
+//THIS IS ALSO TODO. IMplement admin view! 
+//Help! 
 
 function getData() {
 	if(store.position) helpers.pickAlphabet();

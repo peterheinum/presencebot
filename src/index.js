@@ -25,12 +25,7 @@ bot.on('start', function () {
 	helpers.init();
 	store.dbSwitch = "000000000000000000000000000000";
 	store.alphabet = firstAlphabet();
-	// db.updateCount('total');
-	// db.updateCount('hallo');
-	// db.updateCount('eeyo');
-	// db.updateCount('oooo');
-	// db.updateCount('lllll');
-	// db.updateCount('eeeee');
+	store.randomNr = helpers.randomNumberGenerator();
 });
 
 function firstAlphabet() {
@@ -55,8 +50,6 @@ bot.on('message', msg => {
 					}
 				});
 
-				
-				//msg.text = msg.text.toLowerCase(); //this stopped working how the heck
 				switch (msg.text) {
 					case 'sick': {
 						let tempdate = new Date();
@@ -99,7 +92,7 @@ bot.on('message', msg => {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
 								// bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
 							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
-							pushUsertopresent(msg.user);
+							//pushUsertopresent(msg.user);
 							break;
 						} else {
 							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
@@ -162,6 +155,15 @@ function checkIfMessageIsOperation(msg, user) {
 					setTimeout(logger, 4000, user);
 					break;
 				}
+				// case 'deleteperson': { 
+				// 	Maybe somebody can fill this in ? 
+				// 	Todo, create a db function in dbhelpers.js that will delete msg.text[1] from collection people
+				// 	Give feeedback to user
+				// }
+				// case 'deleteDb': {
+				// 	Maybe somebody can fill this in ? 
+				// 	Same as above but delete whole db collection. 
+				// }
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
 			}
