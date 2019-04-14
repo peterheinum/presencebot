@@ -19,7 +19,6 @@ let currentToken = guid();
 
 express.post('/verifypassword' , (req, res) => {
 	verifyPassword(req.body.key);
-	console.log("do i even exist ", okLoggin);
 	okLoggin ? res.send("ok") : res.send("denied");
 })
 

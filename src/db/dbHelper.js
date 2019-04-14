@@ -142,15 +142,49 @@ const dbHelper = {
     });
   },
 
-
+  
+  getCollection: async id => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db(dbName);
+      dbo.collection(id).find({}).toArray(function(err, result) {
+        if (err) throw err;
+        const people = result.reduce((acc, val) => {
+          acc.push({name: Object.keys(val)[1], points: val.points});
+          return acc;
+        }, []);
+        db.close();
+        store.data.push(people);
+      });
+    });
+  },
 
   getAllData: async () => {
+    store.data = [];
     MongoClient.connect(url, function(err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
       dbo.listCollections().toArray(function(err, collInfos) {
-        console.log(collInfos);
-        console.log(err);
+        const dbCollections = collInfos.reduce((acc, val) => {
+          if(val.name[0] == 'e' || val.name[0] == 'p') acc.push(val.name);
+          return acc;
+        }, [])
+
+        dbCollections.forEach(e => {
+          if(e[0] == 'p') {
+            dbo.collection(e).find({}).toArray(function(err, result) {
+              if (err) throw err;
+              const people = result.reduce((acc, val) => {
+                acc.push({name: Object.keys(val)[1], points: val.points});
+                return acc;
+              }, []);
+              store.data.push({[e]: people});
+            });
+          }
+        });
+
+        setTimeout(console.log, 2000, store.data);
+
       })
 
       // dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
