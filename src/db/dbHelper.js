@@ -90,23 +90,23 @@ const dbHelper = {
           if (res) {
             dbo.collection('externalvars' + store.dbSwitch).updateOne({ 'positon': '0' }, { 'position': '0' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              if(res) console.log(`updated: position 0`);
+              if (res) console.log(`updated: position 0`);
             })
             dbo.collection('externalvars' + store.dbSwitch).updateOne({ 'randomnr': '0000' }, { 'randomnr': '0000' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              if(res) console.log(`updated: randomnr 0000`);
+              if (res) console.log(`updated: randomnr 0000`);
             })
             dbo.collection('externalvars' + store.dbSwitch).updateOne({ 'todaysdate': '0000' }, { 'todaysdate': '0000' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              if(res) console.log(`updated: todaysdate 0000`);
+              if (res) console.log(`updated: todaysdate 0000`);
             })
             dbo.collection('externalvars' + store.dbSwitch).updateOne({ 'sheet': newSheet }, { 'sheet': newSheet }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              if(res) console.log(`updated: sheet ${newSheet}`);
+              if (res) console.log(`updated: sheet ${newSheet}`);
             })
             dbo.collection('externalvars' + store.dbSwitch).updateOne({ 'currentalphabet': 'first' }, { 'currentalphabet': 'first' }, { upsert: true, save: false }, (err, res) => {
               if (err) console.log(err);
-              if(res) console.log(`updated: sheet 0000`);
+              if (res) console.log(`updated: sheet 0000`);
             })
           }
         });
@@ -114,7 +114,7 @@ const dbHelper = {
         dbo.dropCollection('people' + store.dbSwitch, (err, res) => {
           console.log("Trying to create table externalvars");
           dbo.createCollection('people' + store.dbSwitch, (err, res) => {
-            console.log("People table succesfully created"); 
+            console.log("People table succesfully created");
             db.close();
           })
         });
@@ -124,33 +124,33 @@ const dbHelper = {
 
 
   getAllPeople: () => {
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect(url, function (err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
-      dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
+      dbo.collection('people' + store.dbSwitch).find({}).toArray(function (err, result) {
         if (err) throw err;
         const people = result.reduce((acc, val) => {
-          acc.push({name: Object.keys(val)[1], points: val.points});
+          acc.push({ name: Object.keys(val)[1], points: val.points });
           return acc;
         }, []);
         db.close();
 
         const alphabeticlySortedPeople = people.sort((a, b) => a.name.localeCompare(b.name));
-        
+
         store.people = alphabeticlySortedPeople;
       });
     });
   },
 
-  
+
   getCollection: async id => {
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect(url, function (err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
-      dbo.collection(id).find({}).toArray(function(err, result) {
+      dbo.collection(id).find({}).toArray(function (err, result) {
         if (err) throw err;
         const people = result.reduce((acc, val) => {
-          acc.push({name: Object.keys(val)[1], points: val.points});
+          acc.push({ name: Object.keys(val)[1], points: val.points });
           return acc;
         }, []);
         db.close();
@@ -161,30 +161,27 @@ const dbHelper = {
 
   getAllData: async () => {
     store.data = [];
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect(url, function (err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
-      dbo.listCollections().toArray(function(err, collInfos) {
+      dbo.listCollections().toArray(function (err, collInfos) {
         const dbCollections = collInfos.reduce((acc, val) => {
-          if(val.name[0] == 'e' || val.name[0] == 'p') acc.push(val.name);
+          if (val.name[0] == 'e' || val.name[0] == 'p') acc.push(val.name);
           return acc;
         }, [])
 
         dbCollections.forEach(e => {
-          if(e[0] == 'p') {
-            dbo.collection(e).find({}).toArray(function(err, result) {
+          if (e[0] == 'p') {
+            dbo.collection(e).find({}).toArray(function (err, result) {
               if (err) throw err;
               const people = result.reduce((acc, val) => {
-                acc.push({name: Object.keys(val)[1], points: val.points});
+                acc.push({ name: Object.keys(val)[1], points: val.points });
                 return acc;
               }, []);
-              store.data.push({[e]: people});
+              store.data.push({ [e]: people });
             });
           }
         });
-
-        setTimeout(console.log, 2000, store.data);
-
       })
 
       // dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
@@ -196,7 +193,7 @@ const dbHelper = {
       //   db.close();
 
       //   const alphabeticlySortedPeople = people.sort((a, b) => a.name.localeCompare(b.name));
-        
+
       //   store.people = alphabeticlySortedPeople;
       // });
     });

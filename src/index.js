@@ -31,7 +31,20 @@ bot.on('start', function () {
 
 async function doShit(){
 	await db.getAllData();
+	setTimeout(logLoop, 2000);
 };
+
+function logLoop(){
+	// console.log(store.data.reduce((acc, i) => {
+	// 	acc.push(i);
+	// 	console.log(i);
+	// 	return acc;
+	// }, []))
+
+	store.data.forEach(e => {
+		helpers.calculatePercentages(e);
+	});
+}
 
 
 function firstAlphabet() {

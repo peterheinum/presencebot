@@ -3,7 +3,7 @@ const db = require('../db/dbHelper');
 
 const helperFunctions = {
   pickAlphabet: () => {
-    if(store.currentAlphabet === 'first') {      
+    if (store.currentAlphabet === 'first') {
       if (store.position > 25) {
         store.alphabet = secondAlphabet();
         store.position = 0;
@@ -12,7 +12,7 @@ const helperFunctions = {
         db.update('currentalphabet', 'second');
         console.log("Switched from first to second Alphabet");
       }
-    } 
+    }
 
     if (store.currentAlphabet === 'first' && store.position < 24 || store.position === 24) {
       store.alphabet = firstAlphabet();
@@ -20,7 +20,7 @@ const helperFunctions = {
     }
 
     if (store.currentAlphabet === 'second') {
-      if(store.position > 673){
+      if (store.position > 673) {
         store.alphabet = thirdAlphabet();
         store.position = 0;
         store.currentAlphabet = 'third';
@@ -43,6 +43,23 @@ const helperFunctions = {
     let number = Math.floor((Math.random() * 9999));
     if (number < 1000) number += 1000;
     return number;
+  },
+
+  calculatePercentages: arr => {
+    const total = arr[Object.keys(arr)[0]].find(o => o.name == 'total');
+    console.log("______________")
+    return arr[Object.keys(arr)[0]].reduce((acc, e) => { 
+      //const total = e.find(x => x.name == 'total');
+      const x = e.points;
+      const y =  total.points;
+      const res = x / y;
+      const desiredNumberOfDecimals = 2;
+      const floatRes = res.toPrecision(String(res).length + desiredNumberOfDecimals);
+      const percent = floatRes.toString().split('0.')[1] != undefined ? floatRes.toString().split('0.')[1].slice(0, 2) : "";
+      if (e.name !== 'total') e.percent = percent;
+      console.log(e);
+      return acc;
+    }, []);
   },
 
   init: () => {
