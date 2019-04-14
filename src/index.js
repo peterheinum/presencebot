@@ -26,6 +26,7 @@ bot.on('start', function () {
 	store.dbSwitch = "000000000000000000000000000000";
 	store.alphabet = firstAlphabet();
 	store.randomNr = helpers.randomNumberGenerator();
+	db.getAllData();
 });
 
 

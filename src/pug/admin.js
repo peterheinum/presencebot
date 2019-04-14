@@ -28,6 +28,12 @@ express.get('/' , (req, res) => {
 	res.sendFile(path.join(__dirname + '/login.html'));
 })
 
+express.get('/getAllData', (req, res) => {
+	if(currentToken === store.token){
+		
+	}
+})
+
 express.get('/login', (req, res) => {
 	if(okLoggin) {
 		res.sendFile(path.join(__dirname + '/adminView.html'));
@@ -66,7 +72,6 @@ function startCountdown(duration) {
 			seconds = seconds < 10 ? "0" + seconds : seconds;
 
 			if((minutes+seconds>0) === false){
-				currentToken = guid();
 				okLoggin = false;
 				store.token = guid();
 			}

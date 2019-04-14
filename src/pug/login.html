@@ -17,14 +17,12 @@
 
 </html>
 <script>
-function checkKeyPresses(e){
-    console.log(e);
-    if(e.keyCode === 13){
-        verifyPassword();
+    function checkKeyPresses(e) {
+        console.log(e);
+        if (e.keyCode === 13) {
+            verifyPassword();
+        }
     }
-}
-
-
     function verifyPassword() {
         const password = document.querySelector('#password').value;
         const data = { key: password }

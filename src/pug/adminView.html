@@ -17,7 +17,16 @@
 
 </html>
 <script>
+const toJSON = x => x.JSON();
 
+function init(){
+  fetch('/getAllData').then(toJSON).then(data => {
+    
+  })
+}
+
+
+document.onload = init();
 
 
 

@@ -123,7 +123,7 @@ const dbHelper = {
   },
 
 
-  getAllPeople: async () => {
+  getAllPeople: () => {
     MongoClient.connect(url, function(err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
@@ -140,10 +140,34 @@ const dbHelper = {
         store.people = alphabeticlySortedPeople;
       });
     });
+  },
+
+
+
+  getAllData: async () => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db(dbName);
+      dbo.listCollections().toArray(function(err, collInfos) {
+        console.log(collInfos);
+        console.log(err);
+      })
+
+      // dbo.collection('people' + store.dbSwitch).find({}).toArray(function(err, result) {
+      //   if (err) throw err;
+      //   const people = result.reduce((acc, val) => {
+      //     acc.push({name: Object.keys(val)[1], points: val.points});
+      //     return acc;
+      //   }, []);
+      //   db.close();
+
+      //   const alphabeticlySortedPeople = people.sort((a, b) => a.name.localeCompare(b.name));
+        
+      //   store.people = alphabeticlySortedPeople;
+      // });
+    });
+
   }
-
-
-
 
 
 
