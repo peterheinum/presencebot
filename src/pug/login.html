@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css">
+</head>
+
+<body>
+    <div class="main">
+        <input type="text" id="password" placeholder="password" onkeypress="checkKeyPresses(event)">
+    </div>
+</body>
+
+</html>
+<script>
+function checkKeyPresses(e){
+    console.log(e);
+    if(e.keyCode === 13){
+        verifyPassword();
+    }
+}
+
+
+    function verifyPassword() {
+        const password = document.querySelector('#password').value;
+        const data = { key: password }
+        $.ajax({
+            url: '/verifypassword',
+            type: 'POST',
+            data: data,
+            success: function (result) {
+                if (result === "ok") {
+                    window.location = '/login';
+                }
+                if (result === "denied") {
+                    console.log("Wrong password");
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+
+    function hasch(string) {
+        var hash = 0;
+        if (string.length == 0) {
+            return hash;
+        }
+        for (var i = 0; i < string.length; i++) {
+            var char = string.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash;
+    }
+
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

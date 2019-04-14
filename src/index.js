@@ -6,7 +6,6 @@ const sheets = require('./google/sheets')
 const store = require('./helpers/sharedvars');
 const helpers = require('./helpers/helperFunctions');
 const db = require('./db/dbHelper');
-const guid = require('uuid');
 
 
 
@@ -23,42 +22,11 @@ const bot = new SlackBot({
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
-	// helpers.init();
-	// store.dbSwitch = "000000000000000000000000000000";
-	// store.alphabet = firstAlphabet();
-	// store.randomNr = helpers.randomNumberGenerator();
-	isPassLegit('lol');
+	helpers.init();
+	store.dbSwitch = "000000000000000000000000000000";
+	store.alphabet = firstAlphabet();
+	store.randomNr = helpers.randomNumberGenerator();
 });
-
-function isPassLegit(password){
-	if(password === process.env.PASSWORD) {
-		store.token = guid();
-		startTimer(10 * 1);
-		console.log(store.token);
-	}
-}
-
-function startTimer(duration) {
-	let timer = duration, minutes, seconds;
-	setInterval(function () {
-			minutes = parseInt(timer / 60, 10)
-			seconds = parseInt(timer % 60, 10);
-
-			minutes = minutes < 10 ? "0" + minutes : minutes;
-			seconds = seconds < 10 ? "0" + seconds : seconds;
-
-			console.log(minutes + ":" + seconds);
-			if((minutes+seconds>0) === false){
-				
-				console.log("its over");
-				store.token = guid();
-				console.log(store.token);
-			}
-			if (--timer < 0) {
-					timer = duration;
-			}
-	}, 1000);
-}
 
 
 function firstAlphabet() {
@@ -67,8 +35,6 @@ function firstAlphabet() {
 	];
 	return alphabet;
 }
-
-
 
 bot.on('message', msg => {
 	switch (msg.type) {
