@@ -20,7 +20,8 @@
     "mathjs": "^5.4.0",
     "mongodb": "^2.2.36",
     "pug": "^2.0.3",
-    "slackbots": "^1.2.0"
+    "slackbots": "^1.2.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^5.13.0",

@@ -25,15 +25,12 @@ function getData() {
 }
 
 // ---- For the splash page ---- ||
-express.get('/', (req, res) => {
+express.get('/' + store.token, (req, res) => {
 	if(store.position) helpers.pickAlphabet();
 });
 
 express.get('/admin', (req, res) => {
-	if(store.position) helpers.pickAlphabet();
-	res.send(`randomnr: ${store.randomNr.toString()} | current position in excell ${store.alphabet[store.position]} | 
-	sheetId: ${store.schoolSheet}
-	`)
+	
 })
 
 const port = process.env.PORT || 3000;

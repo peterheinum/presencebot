@@ -123,7 +123,7 @@ const dbHelper = {
   },
 
 
-  getAllPeople: () => {
+  getAllPeople: async () => {
     MongoClient.connect(url, function(err, db) {
       if (err) throw err;
       var dbo = db.db(dbName);
@@ -135,8 +135,8 @@ const dbHelper = {
         }, []);
         db.close();
 
-        const alphabeticlySortedPeople = people.sort((a, b) => a.name[0].localeCompare(b.name[0]));
-
+        const alphabeticlySortedPeople = people.sort((a, b) => a.name.localeCompare(b.name));
+        
         store.people = alphabeticlySortedPeople;
       });
     });
