@@ -1,8 +1,10 @@
+require('dotenv').config();
 const store = require('../helpers/sharedvars');
 const { google } = require('googleapis');
 
 const sheetsFunctions = {
-  writeDateOnTop(authClient) {
+  writeDateOnTop: (authClient) => {
+    store.position = !store.position ? 0 : store.position;
     let rangePosition = store.alphabet[store.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
@@ -26,7 +28,7 @@ const sheetsFunctions = {
   },
 
 
-  appendName(authClient) {
+  appendName: (authClient) => {
     let rangePosition = store.alphabet[store.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
@@ -48,7 +50,7 @@ const sheetsFunctions = {
       }
     });
   },
-  appendSickPerson(authClient) {
+  appendSickPerson: (authClient) => {
     let cellvalue = `${store.name}`;
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {

@@ -8,12 +8,12 @@ const dbName = process.env.MONGO_DB_NAME;
 const url = process.env.MONGODB_URI;
 const dbHelper = {
   insert: (data) => {
-    MongoClient.connect(url, function (err, db) {
+    MongoClient.connect(url, (err, db) => {
       console.log("connected");
       assert.equal(null, err);
       let dbo = db.db(dbName);
       console.log("inserting: " + data);
-      dbo.collection('externalvars' + store.dbSwitch).insertOne(data, (err, res) => {
+      dbo.collection('externalvars:' + store.dbSwitch).insertOne(data, (err, res) => {
         if (err) console.log(err);
         console.log("inserted");
         db.close();
@@ -21,12 +21,12 @@ const dbHelper = {
     });
   },
   update: (cell, data) => {
-    MongoClient.connect(url, function (err, db) {
+    MongoClient.connect(url, (err, db) => {
       assert.equal(null, err);
       let dbo = db.db(dbName);
       let cellmatcher = { [cell]: /.*.*/ };
       let dataObj = { [cell]: data };
-      dbo.collection('externalvars' + store.dbSwitch).updateOne(cellmatcher, dataObj, { upsert: true, save: false }, (err, res) => {
+      dbo.collection('externalvars:' + store.dbSwitch).updateOne(cellmatcher, dataObj, { upsert: true, save: false }, (err, res) => {
         if (err) console.log(err);
         console.log(`updated: ${cell}: ${data}`);
         db.close();
@@ -34,12 +34,28 @@ const dbHelper = {
     });
   },
 
+  
+  addPersonToDate: (cell, data) => {
+    MongoClient.connect(url, (err, db) => {
+      assert.equal(null, err);
+      let dbo = db.db(dbName);
+      let dataObj = { [cell]: data };
+      dbo.collection(`dates:${store.dbSwitch}`).updateOne({ [cell]: data}, dataObj, (err, res) => {
+        if (err) console.log(err);
+        console.log(`updated: ${cell}: ${data}`);
+        db.close();
+      })
+    });
+  },
+
+
+
   read: (cell) => {
-    MongoClient.connect(url, function (err, db) {
+    MongoClient.connect(url, (err, db) => {
       assert.equal(null, err);
       let dbo = db.db(dbName);
       let cellmatcher = { [cell]: /.*.*/ };
-      dbo.collection('externalvars' + store.dbSwitch).find(cellmatcher, (err, res) => {
+      dbo.collection('externalvars:' + store.dbSwitch).find(cellmatcher, (err, res) => {
         if (err) console.log(err);
         console.log(`Current Db: ${store.dbSwitch}`);
         res.forEach(e => {
@@ -67,6 +83,20 @@ const dbHelper = {
     });
   },
 
+  readDate: (cell) => {
+    MongoClient.connect(url, (err, db) => {
+      assert.equal(null, err);
+      let dbo = db.db(dbName);
+      dbo.collection('dates:0').find({}).toArray((err, res) => {
+        console.log(res)
+        db.close();
+      })
+
+    });
+  },
+
+  
+
   updateCount: (cell) => {
     MongoClient.connect(url, function (err, db) {
       assert.equal(null, err);
@@ -78,6 +108,8 @@ const dbHelper = {
       })
     });
   },
+
+
 
   dropAndRestartCollections: (newSheet) => {
     MongoClient.connect(url, function (err, db) {

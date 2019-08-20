@@ -68,7 +68,10 @@ const helperFunctions = {
     db.read('sheet');
     db.read('position');
     db.read('currentalphabet');
-  }
+  },
+  firstAlphabet: firstAlphabet,
+  secondAlphabet: secondAlphabet,
+  thirdAlphabet: thirdAlphabet
 }
 
 function firstAlphabet() {
