@@ -12,20 +12,19 @@ const db = require('./db/dbHelper');
 const params = { 'presencebot': true, icon_emoji: ':sun:' };
 let presentUsers = [];
 
-const envKey = process.env.slack;
 const bot = new SlackBot({
-  token: envKey,
+  token: process.env.SLACK,
   name: 'presencebot'
 });
+
+
 
 // INIT MY BOT
 bot.on('start', () => {
   bot.postMessageToUser('Peter Heinum', 'hello there', params)
+
   console.log('Good morning');
-  // helpers.init();
-  // db.update('todaysdate', 'yeet');
-  db.readDate('dates:0')
-  // db.addPersonToDate(convertDateToString(new Date()), 'yeete the meat')
+  helpers.init();
   store.dbSwitch = "0";
   store.alphabet = helpers.firstAlphabet();
   store.randomNr = helpers.randomNumberGenerator();
