@@ -19,7 +19,8 @@ const bot = new SlackBot({
 });
 
 // INIT MY BOT
-bot.on('start', function () {
+bot.on('start', () => {
+  bot.postMessageToUser('Peter Heinum', 'hello there', params)
   console.log('Good morning');
   // helpers.init();
   // db.update('todaysdate', 'yeet');

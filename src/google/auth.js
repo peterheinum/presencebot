@@ -5,9 +5,9 @@ const readline = require('readline');
 const { google } = require('googleapis');
 
 const TOKEN_PATH = 'token.json';
-const ClientSecret='axCSprmF8ODzG_ENck_HCqk0';
-const ProjectId='monday-1545144022762';
-const ClientID='713624167226-rk4jfuppk3tjug2lmanu486a6nct8ont.apps.googleusercontent.com'
+const ClientID = process.env.CLIENTID;
+const ClientSecret = process.env.CLIENTSECRET;
+const ProjectId = process.env.PROJECTID;
 
 const credentials = `{"installed":{"client_id":"${ClientID}","project_id":"${ProjectId}","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://www.googleapis.com/oauth2/v3/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"${ClientSecret}","redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]}}`;
 

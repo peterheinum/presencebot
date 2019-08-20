@@ -48,10 +48,10 @@ const helperFunctions = {
   calculatePercentages: arr => {
     const total = arr[Object.keys(arr)[0]].find(o => o.name == 'total');
     console.log("______________")
-    return arr[Object.keys(arr)[0]].reduce((acc, e) => { 
+    return arr[Object.keys(arr)[0]].reduce((acc, e) => {
       //const total = e.find(x => x.name == 'total');
       const x = e.points;
-      const y =  total.points;
+      const y = total.points;
       const res = x / y;
       const desiredNumberOfDecimals = 2;
       const floatRes = res.toPrecision(String(res).length + desiredNumberOfDecimals);
