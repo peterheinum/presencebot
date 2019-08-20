@@ -6,7 +6,6 @@ const sheets = require('./google/sheets')
 const store = require('./helpers/sharedvars');
 const helpers = require('./helpers/helperFunctions');
 const db = require('./db/dbHelper');
-const guid = require('uuid');
 
 
 
@@ -19,54 +18,19 @@ const bot = new SlackBot({
 	name: 'presencebot'
 });
 
-
 // INIT MY BOT
 bot.on('start', function () {
 	console.log('Good morning');
 	// helpers.init();
-	// store.dbSwitch = "000000000000000000000000000000";
-	// store.alphabet = firstAlphabet();
-	// store.randomNr = helpers.randomNumberGenerator();
-	isPassLegit('lol');
+	// db.update('todaysdate', 'yeet');
+	db.readDate('dates:0')
+	// db.addPersonToDate(convertDateToString(new Date()), 'yeete the meat')
+	store.dbSwitch = "0";
+	store.alphabet = helpers.firstAlphabet();
+	store.randomNr = helpers.randomNumberGenerator();
 });
 
-function isPassLegit(password){
-	if(password === process.env.PASSWORD) {
-		store.token = guid();
-		startTimer(10 * 1);
-		console.log(store.token);
-	}
-}
 
-function startTimer(duration) {
-	let timer = duration, minutes, seconds;
-	setInterval(function () {
-			minutes = parseInt(timer / 60, 10)
-			seconds = parseInt(timer % 60, 10);
-
-			minutes = minutes < 10 ? "0" + minutes : minutes;
-			seconds = seconds < 10 ? "0" + seconds : seconds;
-
-			console.log(minutes + ":" + seconds);
-			if((minutes+seconds>0) === false){
-				
-				console.log("its over");
-				store.token = guid();
-				console.log(store.token);
-			}
-			if (--timer < 0) {
-					timer = duration;
-			}
-	}, 1000);
-}
-
-
-function firstAlphabet() {
-	const alphabet = [
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
-	];
-	return alphabet;
-}
 
 
 
@@ -112,20 +76,23 @@ bot.on('message', msg => {
 					}
 
 					case 'currentsheet': {
+						console.log(store.schoolSheet)
 						bot.postMessageToUser(user.display_name, `Current sheet: ${store.schoolSheet}`, params);
 						break;
 					}
 
 					case store.randomNr.toString(): {
-						if (!checkIfUserPresent(msg.user)) {
+						if (!presentUsers.includes(msg.user)) {
 							store.name = nameMassager(user.real_name);
 							db.updateCount(nameMassager(user.real_name));
 							Auth.Authorize(sheets.appendName);
 							if (presentUsers.length == 0) {
 								bot.postMessageToUser(user.display_name, `DING DING DING! Du var först att få närvaro den ${store.todaysdate}, bra jobbat ${user.real_name}`, params);
 								// bot.postMessageToChannel('reminders', `Kom ihåg att skriva koden på tavlan om du är här, Happy coding! :]`, params);
-							} else { bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params); }
-							//pushUsertopresent(msg.user);
+							} else { 
+								bot.postMessageToUser(user.display_name, `Yo yo yo, goodmorning ${user.real_name} \n Present [✓]`, params);
+							}
+							presentUsers.push(msg.user);
 							break;
 						} else {
 							bot.postMessageToUser(user.display_name, 'Du är redan närvarande', params);
@@ -154,6 +121,7 @@ const startPresenceAndMsgUser = (user) => {
 	bot.postMessageToUser(user.display_name, `Good morning ${user.real_name} \n Class initiated: ${store.dbSwitch}`, params);
 	newPresence(user.display_name);
 	bot.postMessageToUser(user.display_name, store.randomNr, params);
+	console.log(store.randomNr)
 }
 
 function checkIfMessageIsOperation(msg, user) {
@@ -172,6 +140,9 @@ function checkIfMessageIsOperation(msg, user) {
 					changeSheetId(msg.text[1]);
 					bot.postMessageToUser(user.display_name, `new sheet is ${store.schoolSheet}`, params);
 					return;
+				case 'testsheet':
+					changeSheetId(msg.text[1]);
+					console.log(msg.text[1], 'is your new id')
 				case 'startover':
 					resetBot(msg.text[2], user, msg.text[1]);
 					return;
@@ -188,15 +159,6 @@ function checkIfMessageIsOperation(msg, user) {
 					setTimeout(logger, 4000, user);
 					break;
 				}
-				// case 'deleteperson': { 
-				// 	Maybe somebody can fill this in ? 
-				// 	Todo, create a db function in dbhelpers.js that will delete msg.text[1] from collection people
-				// 	Give feeedback to user
-				// }
-				// case 'deleteDb': {
-				// 	Maybe somebody can fill this in ? 
-				// 	Same as above but delete whole db collection. 
-				// }
 				default: bot.postMessageToUser(user.display_name, `Error, command not recognized: ${msg.text[0]}`);
 					return;
 			}
@@ -255,18 +217,12 @@ function ResetDateKeyCount(user) {
 	bot.postMessageToUser(user.display_name, 'Succesfully reset the datekey file', params);
 }
 
-function pushUsertopresent(userid) {
-	presentUsers.push(userid);
-}
 
-function checkIfUserPresent(userid) {
-	return presentUsers.includes(userid); 
-}
 
 function newPresence(user) {
 	try {
 		let tempdate = convertDateToString(new Date());
-		if (tempdate != "") {// store.todaysdate) { This will allow several class presence checks every day
+		if (tempdate != '') {// store.todaysdate) { This will allow several class presence checks every day
 			store.position = parseInt(store.position) + 2;
 			helpers.pickAlphabet();
 			store.todaysdate = tempdate;
