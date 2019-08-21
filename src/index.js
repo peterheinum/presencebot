@@ -22,7 +22,6 @@ const bot = new SlackBot({
 // INIT MY BOT
 bot.on('start', () => {
   bot.postMessageToUser('Peter Heinum', 'hello there', params)
-
   console.log('Good morning');
   helpers.init();
   store.dbSwitch = "0";

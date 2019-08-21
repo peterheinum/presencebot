@@ -19,6 +19,7 @@ const Auth = {
       client_id, client_secret, redirect_uris[0],
     );
     fs.readFile(TOKEN_PATH, (err, token) => {
+      console.log(callback)
       if (err) return this.getNewToken(oAuth2Client, callback);
       oAuth2Client.setCredentials(JSON.parse(token));
       callback(oAuth2Client);

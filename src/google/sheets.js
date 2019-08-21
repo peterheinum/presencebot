@@ -29,10 +29,11 @@ const sheetsFunctions = {
 
 
   appendName: (authClient) => {
+    store.position = !store.position ? 0 : store.position;
     let rangePosition = store.alphabet[store.position];
     const sheets = google.sheets({ version: 'v4', authClient });
     let request = {
-      spreadsheetId: store.schoolSheet,
+      spreadsheetId: '1ZJDrQEhW-biwO6AgH4za-Wq1MXQUYxP1zl5yqN5-Xqo',
       range: `Sheet1!${rangePosition}1:${rangePosition}1`,
       valueInputOption: 'RAW',
       insertDataOption: 'OVERWRITE',

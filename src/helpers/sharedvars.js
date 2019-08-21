@@ -6,6 +6,7 @@ const sharedvars = {
   todaysdate: '',
   randomNr: '',
   schoolSheet: '',
+  sheet: '',
   sickSheet: '',
   alphabet: [],
   currentAlphabet: '',
