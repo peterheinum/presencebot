@@ -18,7 +18,7 @@
     "google-spreadsheet": "^2.0.7",
     "googleapis": "^27.0.0",
     "handlebars": "^4.1.1",
-    "mathjs": "^5.4.0",
+    "mathjs": "^7.5.1",
     "mongodb": "^2.2.36",
     "pug": "^2.0.3",
     "slackbots": "^1.2.0",
